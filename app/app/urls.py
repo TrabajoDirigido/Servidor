@@ -27,8 +27,9 @@ def run_connection():
 
     serversocket.listen(5)
     while True:
+        print(ServerClient.views.connected_clients)
         (clientsocket, address) = serversocket.accept()
-        ip = address[0]
+        ip = socket.gethostbyname(address[0])
         ServerClient.views.connected_clients[ip] = clientsocket
 
 t = threading.Thread(target=run_connection)

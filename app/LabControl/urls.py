@@ -11,5 +11,4 @@ urlpatterns = patterns('',
                        url(r'^add_lab/', views.add_lab, name='add_lab'),
                        url(r'^results/', views.results, name='query'),
                        url(r'^registry/', views.registry, name='registry'),
-                       #url(r'^save_deleted_points_to_database/', views.save_deleted_points_to_database, name='save_deleted_points_to_database'),
                        )
