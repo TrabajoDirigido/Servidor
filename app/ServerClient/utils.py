@@ -1,5 +1,4 @@
 from ServerClient.views import connected_clients
-from ServerClient.models import ClientInfo
 __author__ = 'Camila Alvarez'
 
 def parse_query(query,id): #debe retornar el id
@@ -202,8 +201,7 @@ def _get_client(query, client_dict):
                  'y': query['y']}
     if client=='all':
         for ip in connected_clients:
-            name = ClientInfo.objects.get(address=ip)
-            client_dict[name] = new_query
+            client_dict[ip] = new_query
     elif type(client) is list:
         for c in client:
             client_dict[c]=new_query
