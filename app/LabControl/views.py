@@ -1,6 +1,7 @@
 from django.shortcuts import render_to_response
 from .forms import *
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+import json
 
 def index(request):
     form = LoginForm()
@@ -25,3 +26,4 @@ def results(request):
 
 def registry(request):
     return JsonResponse({'OK': True})
+

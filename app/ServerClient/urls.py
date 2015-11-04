@@ -8,4 +8,5 @@ urlpatterns = patterns('',
                        url(r'^check_connected_clients/', views.check_connected_clients, name='check_connected_clients'),
                        url(r'^broadcast_message/', views.broadcast_message, name='broadcast_message'),
                        url(r'^unregister/', views.unregister, name='unregister'),
+                       url(r'^get_parsed_query/', views.get_parsed_query, name='get_parsed_query')
                        )

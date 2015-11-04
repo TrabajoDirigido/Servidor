@@ -3,7 +3,7 @@ from .models import ClientInfo
 from ipware.ip import get_ip
 import json
 import socket
-
+from .utils import parse_query, get_client_side_query
 connected_clients = {}
 
 
@@ -59,3 +59,29 @@ def unregister(request):
 
     except ClientInfo.DoesNotExist:
         return HttpResponse(status=500)
+
+
+
+
+def get_parsed_query(request):
+    parsed_query = {'method': 'for',
+                    'vals': {
+                                'method': 'get',
+                                'for': 'all',
+                                'x': 2,
+                                'y':3
+                            },
+                    'query':{
+                        'method': 'compare',
+                        'arg1': 'for_value',
+                        'arg2':2
+                    }
+    }
+    id = 1 #Se saca de la base de datos
+    #parsed_query=json.loads(request.body.decode('utf-8'))
+    parsed_query,_ = parse_query(parsed_query,id)
+    #Guardar parsed_query en base de datos y luego determinar que mandar al cliente
+    client_side_query = get_client_side_query(parsed_query)
+    return HttpResponse(status=200)
+
+    pass
