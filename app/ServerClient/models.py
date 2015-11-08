@@ -13,6 +13,7 @@ class Lab(models.Model):
 class Result(models.Model):
     value = models.TextField()
     type = models.CharField(max_length=100)
+    origin = models.CharField(max_length=200,default='localhost')
 
 class Argument(models.Model):
     value = models.TextField()

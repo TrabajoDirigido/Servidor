@@ -1,13 +1,16 @@
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import ClientInfo, Lab
+from .models import ClientInfo, Lab, Query
 from ipware.ip import get_ip
 import json
 import copy
 import socket
 from .database_utils import save_parsed_query_to_database, save_result
 from .utils import parse_query, get_client_side_query
+from django.views.decorators.csrf import csrf_exempt
+import logging
 connected_clients = {}
 
+logger = logging.getLogger('error')
 
 # Create your views here.
 def register(request):
@@ -50,7 +53,6 @@ def broadcast_message(request):
 
 def unregister(request):
     token = request.GET['token']
-
     s = connected_clients[token]
     s.send("\r\n".encode())
 
@@ -66,36 +68,83 @@ def unregister(request):
 
 
 def get_parsed_query(request):
-    parsed_query = {"id":8,
-                    "method":"logic",
+    parsed_query = {"method":"logic",
                     "type":"and",
-                    "vals":{"id":5,
-                            "method":"compare",
-                            "arg1":{"id":1,
-                                    "method":"get",
-                                    "x":[{"var":"4","type":"int"},{"var":"4","type":"int"},
-                                         {"var":"4","type":"int"},{"var":"4","type":"int"}],
-                                    "y":[{"var":"1","type":"int"},{"var":"2","type":"int"},
-                                         {"var":"3","type":"int"},{"var":"4","type":"int"}]
+                    "vals":{"method":"compare",
+                            "arg1":{"method":"get",
+                                    'for': '192.168.0.5',
+                                    "x":[2,2,2,2],
+                                    "y":[1,2,3,4]
                                     },
-                            "arg2":{"id":2,
-                                    "method":"sort",
-                                    "des":{"var":"false","type":"boolean"},
-                                    "vals":{"id":1,"method":"get",
-                                            "x":[{"var":"4","type":"int"},{"var":"4","type":"int"},
-                                                 {"var":"4","type":"int"},{"var":"4","type":"int"}],
-                                            "y":[{"var":"1","type":"int"},{"var":"2","type":"int"},
-                                                 {"var":"3","type":"int"},{"var":"4","type":"int"}]
+                            "arg2":{"method":"sort",
+                                    "des": False,
+                                    "vals":{"method":"get",
+                                            'for': '192.168.0.5',
+                                            "x":[2,2,2,2],
+                                            "y":[1,2,3,4]
                                             }
                                     }
                             }
                     }
 
-    id = 1#Se saca de la base de datos
-    my_connected_clients={'0.0.0.0':'ble'}
+    parsed_query = {"method":"logic",
+                    "type":"and",
+                    "vals":{"method":"compare",
+                            "arg1":{"method":"get",
+                                    'for': '192.168.0.5',
+                                    "x":[4,4,4,4],
+                                    "y":[1,2,3,4]
+                                    },
+                            "arg2":{"method":"sort",
+                                    "des": False,
+                                    "vals":{"method":"get",
+                                            'for': '192.168.0.5',
+                                            "x":[4,4,4,4],
+                                            "y":[1,2,3,4]
+                                            }
+                                    }
+                            }
+                    }
+
+    parsed_query = {"method":"get",
+                    'for': '192.168.0.5',
+                    "x":[4,4,4,4],
+                    "y":[1,2,3,4]
+                    }
+
+
+    parsed_query = {"method":"logic",
+                    "type":"and",
+                    "vals":{"method":"compare",
+                            "arg1":{"method":"get",
+                                    'for': 'all',
+                                    "x":[2,2,2,2],
+                                    "y":[1,2,3,4]
+                                    },
+                            "arg2":{"method":"sort",
+                                    "des": False,
+                                    "vals":{"method":"get",
+                                            'for': 'all',
+                                            "x":[2,2,2,2],
+                                            "y":[1,2,3,4]
+                                            }
+                                    }
+                            }
+                    }
+
+
+    try:
+        max_query_id = Query.objects.all().order_by("-id")[0] #Se saca de la base de datos
+        id = max_query_id.id+1
+    except IndexError:
+        id=1
+
+
+    id = 1
+    #my_connected_clients={'0.0.0.0':'ble'}
 
     #parsed_query=json.loads(request.body.decode('utf-8'))
-    #my_connected_clients = copy.deepcopy(connected_clients)
+    my_connected_clients = connected_clients
 
     parsed_query,_ = parse_query(parsed_query,id, my_connected_clients)
 
@@ -103,19 +152,31 @@ def get_parsed_query(request):
     save_parsed_query_to_database(parsed_query,my_connected_clients)
 
     client_side_query = get_client_side_query(parsed_query,my_connected_clients)
-
+    #print(client_side_query)
     for c in client_side_query:
-        message = json.dumps(client_side_query[c])+"\r\n"
-        connected_clients[c].send(message.encode())
+        for m in client_side_query[c]:
+            message = json.dumps(m)+"\r\n"
+            connected_clients[c].send(message.encode())
 
     return HttpResponse(status=200)
 
-
+@csrf_exempt
 def receive_client_response(request):
     #cargo json
-    response=json.loads(request.body.decode('UTF-8'))
+    response = json.loads(request.body.decode('UTF-8'))
+    origin = response['origin']
+
+    if origin not in connected_clients:
+        logger.log('Not a valid client')
+        return HttpResponse(status=401)
+
     id_query = response['id']
     result = response['result']
 
-    save_result(id_query, result)
-    pass
+    save_result(id_query, result,origin)
+
+    for e in Query.objects.get(id=1).results.all():
+        print('result:'+str(e.value))
+
+    return HttpResponse(status=200)
+

@@ -44,7 +44,8 @@ def _execute_compare(query):
         result = Result(value=val, type='bool')
         result.save()
         query.results.add(result)
-        query.save()
+    query.remaining_results -= 1
+    query.save()
 
 
 def _execute_vals_function(query,f,type):
@@ -58,12 +59,14 @@ def _execute_vals_function(query,f,type):
     new_args =[]
     for a in args:
         new_args.append(eval(a.value))
+
     result = f(new_args) #Entrega una lista de resultados (aunque sea uno)
     for r in result:
         res = Result(value=r, type=type)
         res.save()
         query.results.add(res)
-        query.save()
+    query.remaining_results -= 1
+    query.save()
 
 def _check_bool_arg(args):
     for a in args:
@@ -96,15 +99,14 @@ def _execute_count(query):
 def _execute_sort(query):
     def _my_sort(reverse_value):
         def _inner_sort(args):
-            args_copy = copy.deepcopy(args)
-            args_copy.sort(reverse=reverse_value)
-            return args_copy
+            args.sort(reverse=reverse_value)
+            return args
         return _inner_sort
 
     query_text = eval(query.query)
-    desc = False
-    if 'desc' in query_text:
-        desc = query_text['desc']
+    desc = True
+    if 'des' in query_text:
+        desc = query_text['des']
     arg1 = query.arguments.all()[0]
     return _execute_vals_function(query, _my_sort(desc), arg1.type)
 

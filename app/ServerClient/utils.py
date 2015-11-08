@@ -95,8 +95,10 @@ def _max_operation(query,id,clients):
 
 def _sort(query,id,clients):
     new_query, new_id = _list_value_operation(query,id,'sort',clients)
-    if 'desc' in query:
-        new_query['desc']=query['desc']
+    if 'des' in query:
+        new_query['des']= query['des']
+    else:
+        new_query['des']=True
     return new_query,new_id
 
 
@@ -181,6 +183,8 @@ def _set_alarm(query,id,clients):
 #---------------------------------------------------------------------------
 def get_client_side_query(query,clients):
     client_query_dict = {}
+    for c in clients:
+        client_query_dict[c]=[]
     _recursive_get_client_side_query(query,client_query_dict,clients)
 
     return client_query_dict
@@ -214,12 +218,12 @@ def _get_client(query, client_dict,clients):
                                         'y': query['y']})
     if client=='all':
         for ip in clients:
-            client_dict[ip] = new_query
+            client_dict[ip].append(new_query)
     elif type(client) is list:
         for c in client:
-            client_dict[c]=new_query
+            client_dict[c].append(new_query)
     else:
-        client_dict[client]=new_query
+        client_dict[client].append(new_query)
 
     return
 
@@ -227,7 +231,7 @@ def _get_client(query, client_dict,clients):
 
 def _vals_client(query,client_dict,clients):
     if query['side'][0:6]=='client':
-        client_dict[_get_client_name(query)]=_format_query_to_client(query)
+        client_dict[_get_client_name(query)].append(_format_query_to_client(query))
     else:
         if not type(query['vals']) is list:
             return _recursive_get_client_side_query(query['vals'], client_dict,clients)
@@ -238,10 +242,10 @@ def _vals_client(query,client_dict,clients):
 def _compare_client(query, client_dict,clients):
 
     if query['side'][0:6]=='client':
-        client_dict[_get_client_name(query)]=_format_query_to_client(query)
+        client_dict[_get_client_name(query)].append(_format_query_to_client(query))
     else:
         _recursive_get_client_side_query(query['arg1'],client_dict,clients)
-        _recursive_get_client_side_query(query['arg1'],client_dict,clients)
+        _recursive_get_client_side_query(query['arg2'],client_dict,clients)
 
 
 def _set_alarm_client(query, client_dict,clients):
@@ -300,7 +304,10 @@ def _format_query_to_client(query):
     if not type(query) is dict:
         try:
             int(query)
-            query_type='int'
+            if type(query) is bool:
+                query_type='bool'
+            else:
+                query_type='int'
         except ValueError:
             try:
                 float(query)
@@ -344,8 +351,8 @@ def _get_query_client(query):
 
     return {'id': query['id'],
             'method': 'get',
-            'x': parsed_y,
-            'y': parsed_x}
+            'x': parsed_x,
+            'y': parsed_y}
 
 
 def _compare_query_client(query):
@@ -389,8 +396,10 @@ def _logical_query_client(query):
 
 def _sort_client(query):
     new_query = _vals_query_client(query)
-    if 'desc' in query:
-        new_query['desc']= query['desc']
+    if 'des' in query:
+        new_query['des']= {'var': query['des'], 'type': 'bool'}
+    else:
+        new_query['des']={'var': True, 'type': 'bool'}
     return new_query
 
 

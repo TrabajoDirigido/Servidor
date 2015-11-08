@@ -117,7 +117,7 @@ def _save_compare(query,parent,clients,arg1):
 
 
 def _save_vals_operation(query, parent, clients, arg1):
-    _save_query(query,parent, 1, len(query['vals']) if type(query['vals']) is list else 1, True)
+    _save_query(query,parent, 1, len(query['vals']) if type(query['vals']) is list else 1, arg1)
     _save_list_arg(query['vals'],query['id'],clients, arg1)
     _execute_if_posible(query)
 
@@ -133,19 +133,17 @@ def _save_set_alarm(query,parent,clients, arg1):
 
 
 
-def save_result(id, result):
+def save_result(id, result,origin):
     try:
         query = Query.objects.get(id=id)
         for res in result:
-            value = res['val']
+            value = res['var']
             type = res['type']
-            result = Result(value=value, type=type)
+            result = Result(value=value, type=type, origin=origin)
             result.save()
             query.results.add(result)
-            query.save()
-
         query.remaining_results -= 1
-
+        query.save()
         if query.remaining_results == 0:
             _update_results(query)
     except Query.DoesNotExist:
@@ -153,24 +151,26 @@ def save_result(id, result):
 
 
 def _update_results(query):
-    while query.remaining_args == 0 and query.parent != -1:
-        query_text = eval(query.query)
-
+    query_text = eval(query.query)
+    while (query.remaining_args == 0 or query_text['method'] == 'get'):
         #procesar query
         if query_text['method'] != 'get':
             execute_query(query)
+
+        if query.parent==-1:
+            break
 
         old_query = query
         parent = old_query.parent
         query = Query.objects.get(id=parent)
         res = old_query.results.all()
-        arg_id = query.remaining_args
 
         for r in res:
             new_arg = Argument(value=r.value, type= r.type, arg1=old_query.arg1)
             new_arg.save()
             query.arguments.add(new_arg)
-        query.save()
         query.remaining_args -= 1
+        query.save()
+        query_text = eval(query.query)
 
 
