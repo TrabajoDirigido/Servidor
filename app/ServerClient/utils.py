@@ -1,16 +1,17 @@
-from ServerClient.views import connected_clients
+from .utils_for import replace_for_value
+from .query_execution_utils import execute_query
+from .models import Query
 __author__ = 'Camila Alvarez'
 
-def parse_query(query,id): #debe retornar el id
+def parse_query(query,id,clients): #debe retornar el id
     if not type(query) is dict:
-        return (query,id)
+        return (query, id)
     try:
         method = query['method']
         options ={
             'get': _get,
             'compare': _compare,
-            'and': _and_operation,
-            'or': _or_operation,
+            'logic': _logic_operation,
             'not_empty': _not_empty,
             'count': _count,
             'sort': _sort,
@@ -19,12 +20,13 @@ def parse_query(query,id): #debe retornar el id
             'for': _for_operation,
             'alarm': _set_alarm
         }
-        return options[method](query,id)
+        return options[method](query,id,clients)
     except KeyError as e:
-        return query
+        raise Exception('Invalid query')
 
 
-def _get(query,id):
+def _get(query,id,clients):
+
     return ({'id':id,
              'method': 'get',
              'x': query['x'],
@@ -41,10 +43,21 @@ def _get(query,id):
                id+1)
 
 
-def _compare(query, id):
+def _parse_args(query,id,clients):
+    if type(query) is list:
+        res = []
+        new_id = id
+        for e in query:
+            arg1, new_id = parse_query(e, new_id, clients)
+            res.append(arg1)
+    else:
+        res, new_id = parse_query(query, id, clients)
+    return res, new_id
+
+def _compare(query, id,clients):
     comp_id = id
-    arg1, new_id = parse_query(query['arg1'],id)
-    arg2, new_id = parse_query(query['arg2'],new_id)
+    arg1, new_id = _parse_args(query['arg1'],id+1,clients)
+    arg2, new_id = _parse_args(query['arg2'],new_id,clients)
 
     if not type(arg1) is dict and not type(arg2) is dict:
         side = 'client'
@@ -60,7 +73,7 @@ def _compare(query, id):
             'side': side}, new_id)
 
 
-def _not_empty(query,id):
+def _not_empty(query,id,clients):
     return ({'id': id,
              'method': 'not_empty',
              'side': 'client',
@@ -68,31 +81,34 @@ def _not_empty(query,id):
              'y': query['y']},id+1)
 
 
-def _count(query, id):
-    return _list_value_operation(query,id,'count')
+def _count(query, id,clients):
+    return _list_value_operation(query,id,'count',clients)
 
 
-def _min_operation(query,id):
-    return _list_value_operation(query,id,'min')
+def _min_operation(query,id,clients):
+    return _list_value_operation(query,id,'min',clients)
 
 
-def _max_operation(query,id):
-    return _list_value_operation(query,id,'max')
+def _max_operation(query,id,clients):
+    return _list_value_operation(query,id,'max',clients)
 
 
-def _sort(query,id):
-    return _list_value_operation(query,id,'sort')
+def _sort(query,id,clients):
+    new_query, new_id = _list_value_operation(query,id,'sort',clients)
+    if 'desc' in query:
+        new_query['desc']=query['desc']
+    return new_query,new_id
 
 
-def _vals_operations(query,id):
+def _vals_operations(query,id,clients):
     if not type(query['vals']) is list:
-        vals, new_id = parse_query(query['vals'], id+1)
+        vals, new_id = parse_query(query['vals'], id+1,clients)
     else:
         vals = []
         new_id = id+1
 
         for e in query['vals']:
-            new_val, new_id = parse_query(e,new_id)
+            new_val, new_id = parse_query(e,new_id,clients)
             vals.append(new_val)
     return vals, new_id
 
@@ -120,16 +136,16 @@ def _get_list_side(vals):
             side='client'
     return side
 
-def _list_value_operation(query,id, method):
-    vals, new_id = _vals_operations(query,id)
+def _list_value_operation(query,id, method,clients):
+    vals, new_id = _vals_operations(query,id,clients)
     return({'id':id,
             'method': method,
             'side': _get_list_side(vals),
             'vals': vals}, new_id)
 
 
-def _logic_methods(query,id,method_type):
-    vals, new_id = _vals_operations(query,id)
+def _logic_methods(query,id,method_type,clients):
+    vals, new_id = _vals_operations(query,id,clients)
 
     return({'id':id,
             'method': 'logic',
@@ -138,27 +154,24 @@ def _logic_methods(query,id,method_type):
             'vals': vals}, new_id)
 
 
-def _and_operation(query, id):
-    return _logic_methods(query,id,'and')
+def _logic_operation(query,id,clients):
+    return _logic_methods(query,id, query['type'],clients)
 
 
-def _or_operation(query, id):
-    return _logic_methods(query,id,'or')
-
-
-def _for_operation(query,id):
-    vals, new_id = _vals_operations(query,id)
-    parsed_query, new_id = parse_query(query['query'], new_id)
+def _for_operation(query,id,clients):
+    #vals, new_id = _vals_operations(query,id,clients)
+    vals = replace_for_value(query['for_value'],query['vals'])
+    parsed_query, new_id = parse_query(query['query'], id+1,clients)
 
     return({'id':id,
             'method':'for',
             'vals':vals,
-            'side':_get_list_side(vals),
+            'side':parsed_query['side'],#_get_list_side(vals),
             'query':parsed_query}, new_id)
 
 
-def _set_alarm(query,id):
-    parsed_query, new_id = parse_query(query,id)
+def _set_alarm(query,id,clients):
+    parsed_query, new_id = parse_query(query,id,clients)
     return({'id': id,
             'method': 'alarm',
             'query': parsed_query,
@@ -166,12 +179,19 @@ def _set_alarm(query,id):
             'time': query['time']}, new_id)
 
 #---------------------------------------------------------------------------
-def get_client_side_query(query):
+def get_client_side_query(query,clients):
     client_query_dict = {}
-    _recursive_get_client_side_query(query,client_query_dict)
+    _recursive_get_client_side_query(query,client_query_dict,clients)
+
+    for client in client_query_dict:
+        if client is None:
+            obj_query = Query.objects.get(id=client_query_dict[client]['id'])
+            execute_query(obj_query)
+
+
     return client_query_dict
 
-def _recursive_get_client_side_query(query, client_dict):
+def _recursive_get_client_side_query(query, client_dict,clients):
     if not type(query) is dict:
         return
     try:
@@ -179,8 +199,7 @@ def _recursive_get_client_side_query(query, client_dict):
         options ={
             'get': _get_client,
             'compare': _compare_client,
-            'and': _vals_client,
-            'or': _vals_client,
+            'logic': _vals_client,
             'count': _vals_client,
             'sort': _vals_client,
             'min': _vals_client,
@@ -188,19 +207,19 @@ def _recursive_get_client_side_query(query, client_dict):
             'for': _vals_client,
             'alarm': _set_alarm_client
         }
-        return options[method](query,client_dict)
+        return options[method](query,client_dict,clients)
     except KeyError as e:
-        return query
+        raise Exception('Invalid query')
 
 
-def _get_client(query, client_dict):
+def _get_client(query, client_dict,clients):
     client = query['for']
-    new_query = {'id': query['id'],
-                 'method': 'get',
-                 'x': query['x'],
-                 'y': query['y']}
+    new_query = _format_query_to_client({'id': query['id'],
+                                        'method': 'get',
+                                        'x': query['x'],
+                                        'y': query['y']})
     if client=='all':
-        for ip in connected_clients:
+        for ip in clients:
             client_dict[ip] = new_query
     elif type(client) is list:
         for c in client:
@@ -212,27 +231,27 @@ def _get_client(query, client_dict):
 
 
 
-def _vals_client(query,client_dict):
+def _vals_client(query,client_dict,clients):
     if query['side'][0:6]=='client':
         client_dict[_get_client_name(query)]=_format_query_to_client(query)
     else:
         if not type(query['vals']) is list:
-            return _recursive_get_client_side_query(query['vals'], client_dict)
+            return _recursive_get_client_side_query(query['vals'], client_dict,clients)
         for e in query['vals']:
-            _recursive_get_client_side_query(e,client_dict)
+            _recursive_get_client_side_query(e,client_dict,clients)
 
 
-def _compare_client(query, client_dict):
+def _compare_client(query, client_dict,clients):
 
     if query['side'][0:6]=='client':
         client_dict[_get_client_name(query)]=_format_query_to_client(query)
     else:
-        _recursive_get_client_side_query(query['arg1'],client_dict)
-        _recursive_get_client_side_query(query['arg1'],client_dict)
+        _recursive_get_client_side_query(query['arg1'],client_dict,clients)
+        _recursive_get_client_side_query(query['arg1'],client_dict,clients)
 
 
-def _set_alarm_client(query, client_dict):
-    _recursive_get_client_side_query(query['query'],client_dict)
+def _set_alarm_client(query, client_dict,clients):
+    _recursive_get_client_side_query(query['query'],client_dict,clients)
 
 
 def _get_client_name(query):
@@ -243,8 +262,7 @@ def _get_client_name(query):
         options ={
             'get': _get_name,
             'compare': _compare_name,
-            'and': _vals_name,
-            'or': _vals_name,
+            'logic': _vals_name,
             'count': _vals_name,
             'sort': _vals_name,
             'min': _vals_name,
@@ -253,7 +271,7 @@ def _get_client_name(query):
         }
         return options[method](query)
     except KeyError as e:
-        return query
+        raise Exception('Invalid query')
 
 
 def _get_name(query):
@@ -277,46 +295,84 @@ def _vals_name(query):
             return name
 
 def _for_operation_name(query):
-    name = _vals_name(query)
-    if name is None:
-        return _get_client_name(query['query'])
-    return name
+    #name = _vals_name(query)
+    #if name is None:
+    return _get_client_name(query['query'])
+    #return name
 
 #---------------------------------------------------------------------
 
 def _format_query_to_client(query):
     if not type(query) is dict:
-        return {'var':query}
+        try:
+            int(query)
+            query_type='int'
+        except ValueError:
+            try:
+                float(query)
+                query_type='float'
+
+            except ValueError:
+                try:
+                    bool(query)
+                    query_type='bool'
+
+                except ValueError:
+                    query_type='string'
+
+        return {'var':query, 'type': query_type}
     try:
         method = query['method']
         options ={
             'get': _get_query_client,
             'compare': _compare_query_client,
-            'and': _logical_query_client,
-            'or': _logical_query_client,
+            'logic': _logical_query_client,
             'count': _vals_query_client,
-            'sort': _vals_query_client,
+            'sort': _sort_client,
             'min': _vals_query_client,
             'max': _vals_query_client,
             'for': _for_operation_query_client
         }
         return options[method](query)
     except KeyError as e:
-        return query
+        raise Exception('Invalid query')
 
 
 def _get_query_client(query):
+    parsed_x = []
+    parsed_y = []
+    if type(query['x']) is list:
+        for val_x in query['x']:
+            parsed_x.append(_format_query_to_client(val_x))
+
+    for val_y in query['y']:
+        parsed_y.append(_format_query_to_client(val_y))
+
     return {'id': query['id'],
             'method': 'get',
-            'x': query['x'],
-            'y': query['y']}
+            'x': parsed_y,
+            'y': parsed_x}
 
 
 def _compare_query_client(query):
+    if not type(query['arg1']) is list:
+        arg1 = _format_query_to_client(query['arg1'])
+    else:
+        arg1 = []
+        for e in query['arg1']:
+            arg1.append(_format_query_to_client(e))
+
+    if not type(query['arg2']) is list:
+        arg2 = _format_query_to_client(query['arg2'])
+    else:
+        arg2 = []
+        for e in query['arg2']:
+            arg2.append(_format_query_to_client(e))
+
     return {'id': query['id'],
             'method': 'compare',
-            'arg1': _format_query_to_client(query['arg1']),
-            'arg2': _format_query_to_client(query['arg2'])}
+            'arg1': arg1,
+            'arg2': arg2}
 
 
 def _obtain_vals_to_client(query):
@@ -337,6 +393,13 @@ def _logical_query_client(query):
             'vals': vals}
 
 
+def _sort_client(query):
+    new_query = _vals_query_client(query)
+    if 'desc' in query:
+        new_query['desc']= query['desc']
+    return new_query
+
+
 def _vals_query_client(query):
     vals = _obtain_vals_to_client(query)
     return {'id': query['id'],
@@ -345,9 +408,10 @@ def _vals_query_client(query):
 
 def _for_operation_query_client(query):
     vals = _obtain_vals_to_client(query)
-    query = _format_query_to_client(query['query'])
+    new_query = _format_query_to_client(query['query'])
+    new_query['for_value'] = True
 
     return {'id': query['id'],
             'method': 'for',
             'vals': vals,
-            'query': query}
+            'query': new_query}

@@ -1,8 +1,10 @@
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import ClientInfo
+from .models import ClientInfo, Lab
 from ipware.ip import get_ip
 import json
+import copy
 import socket
+from .database_utils import save_parsed_query_to_database, save_result
 from .utils import parse_query, get_client_side_query
 connected_clients = {}
 
@@ -64,24 +66,39 @@ def unregister(request):
 
 
 def get_parsed_query(request):
-    parsed_query = {'method': 'for',
-                    'vals': {
-                                'method': 'get',
-                                'for': 'all',
-                                'x': 2,
-                                'y':3
-                            },
-                    'query':{
-                        'method': 'compare',
-                        'arg1': 'for_value',
-                        'arg2':2
+    parsed_query = {'method': 'compare',
+                    'arg1':{'method': 'get',
+                            'for': 'all',
+                            'x':[2],
+                            'y':[3]},
+                    'arg2':[3]
                     }
-    }
-    id = 1 #Se saca de la base de datos
+
+    id = 1#Se saca de la base de datos
+    my_connected_clients={'0.0.0.0':'ble'}
+
     #parsed_query=json.loads(request.body.decode('utf-8'))
-    parsed_query,_ = parse_query(parsed_query,id)
+    #my_connected_clients = copy.deepcopy(connected_clients)
+
+    parsed_query,_ = parse_query(parsed_query,id, my_connected_clients)
+
     #Guardar parsed_query en base de datos y luego determinar que mandar al cliente
-    client_side_query = get_client_side_query(parsed_query)
+    save_parsed_query_to_database(parsed_query,my_connected_clients)
+
+    client_side_query = get_client_side_query(parsed_query,my_connected_clients)
+
+    for c in client_side_query:
+        message = json.dumps(client_side_query[c])+"\r\n"
+        connected_clients[c].send(message.encode())
+
     return HttpResponse(status=200)
 
+
+def receive_client_response(request):
+    #cargo json
+    response=json.loads(request.body.decode('UTF-8'))
+    id_query = response['id']
+    result = response['result']
+
+    save_result(id_query, result)
     pass
