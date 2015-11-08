@@ -183,12 +183,6 @@ def get_client_side_query(query,clients):
     client_query_dict = {}
     _recursive_get_client_side_query(query,client_query_dict,clients)
 
-    for client in client_query_dict:
-        if client is None:
-            obj_query = Query.objects.get(id=client_query_dict[client]['id'])
-            execute_query(obj_query)
-
-
     return client_query_dict
 
 def _recursive_get_client_side_query(query, client_dict,clients):

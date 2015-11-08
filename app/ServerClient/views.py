@@ -66,12 +66,29 @@ def unregister(request):
 
 
 def get_parsed_query(request):
-    parsed_query = {'method': 'compare',
-                    'arg1':{'method': 'get',
-                            'for': 'all',
-                            'x':[2],
-                            'y':[3]},
-                    'arg2':[3]
+    parsed_query = {"id":8,
+                    "method":"logic",
+                    "type":"and",
+                    "vals":{"id":5,
+                            "method":"compare",
+                            "arg1":{"id":1,
+                                    "method":"get",
+                                    "x":[{"var":"4","type":"int"},{"var":"4","type":"int"},
+                                         {"var":"4","type":"int"},{"var":"4","type":"int"}],
+                                    "y":[{"var":"1","type":"int"},{"var":"2","type":"int"},
+                                         {"var":"3","type":"int"},{"var":"4","type":"int"}]
+                                    },
+                            "arg2":{"id":2,
+                                    "method":"sort",
+                                    "des":{"var":"false","type":"boolean"},
+                                    "vals":{"id":1,"method":"get",
+                                            "x":[{"var":"4","type":"int"},{"var":"4","type":"int"},
+                                                 {"var":"4","type":"int"},{"var":"4","type":"int"}],
+                                            "y":[{"var":"1","type":"int"},{"var":"2","type":"int"},
+                                                 {"var":"3","type":"int"},{"var":"4","type":"int"}]
+                                            }
+                                    }
+                            }
                     }
 
     id = 1#Se saca de la base de datos
