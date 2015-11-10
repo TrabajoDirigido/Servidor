@@ -1,10 +1,11 @@
 from .models import Query, Lab, Result,Argument
 import datetime
 import json
+import logging
 from .query_execution_utils import execute_query
 __author__ = 'Camila Alvarez'
 
-
+logger = logging.getLogger('error')
 def _get_type(query):
     try:
         int(query)
@@ -54,7 +55,7 @@ def _save_recursive(query,parent,clients, arg1):
         }
         return options[method](query,parent,clients, arg1)
     except KeyError as e:
-        raise Exception('Invalid query')
+        logger.exception(Exception('Invalid query'))
 
 
 def _save_query(query,parent,remaining_results, remaining_args, arg1):
@@ -68,10 +69,10 @@ def _save_query(query,parent,remaining_results, remaining_args, arg1):
     try:
         q = Query(id=query['id'], lab=lab,query=query, parent=parent,
                   remaining_results=remaining_results, remaining_args=remaining_args,
-                  arg1=arg1)
+                  arg1=arg1,name=query['AS'])
         q.save()
     except Exception as e:
-        raise Exception("Couldn't save query")
+        logger.exception(Exception("Couldn't save query"))
 
 
 def _execute_if_posible(query):
@@ -147,7 +148,7 @@ def save_result(id, result,origin):
         if query.remaining_results == 0:
             _update_results(query)
     except Query.DoesNotExist:
-        raise Exception('invalid Query')
+        logger.exception(Exception('invalid Query'))
 
 
 def _update_results(query):

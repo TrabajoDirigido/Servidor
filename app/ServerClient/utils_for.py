@@ -1,6 +1,7 @@
 __author__ = 'Camila Alvarez'
+import logging
 
-
+logger = logging.getLogger('error')
 def replace_for_value(for_value, vals):
     if not type(vals) is list:
        return _replace_for_value(vals, for_value)
@@ -30,7 +31,7 @@ def _replace_for_value(query, for_value):
         }
         return options[method](query,for_value)
     except KeyError as e:
-        raise Exception('Invalid query')
+        logger.exception(Exception('Invalid query'))
 
 
 

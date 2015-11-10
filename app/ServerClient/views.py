@@ -68,37 +68,19 @@ def unregister(request):
 
 
 def get_parsed_query(request):
-    parsed_query = {"method":"logic",
-                    "type":"and",
-                    "vals":{"method":"compare",
-                            "arg1":{"method":"get",
-                                    'for': '192.168.0.5',
-                                    "x":[2,2,2,2],
-                                    "y":[1,2,3,4]
-                                    },
-                            "arg2":{"method":"sort",
-                                    "des": False,
-                                    "vals":{"method":"get",
-                                            'for': '192.168.0.5',
-                                            "x":[2,2,2,2],
-                                            "y":[1,2,3,4]
-                                            }
-                                    }
-                            }
-                    }
 
     parsed_query = {"method":"logic",
                     "type":"and",
                     "vals":{"method":"compare",
                             "arg1":{"method":"get",
-                                    'for': '192.168.0.5',
+                                    'for': '10.0.115.156',
                                     "x":[4,4,4,4],
                                     "y":[1,2,3,4]
                                     },
                             "arg2":{"method":"sort",
                                     "des": False,
                                     "vals":{"method":"get",
-                                            'for': '192.168.0.5',
+                                            'for': '10.0.115.156',
                                             "x":[4,4,4,4],
                                             "y":[1,2,3,4]
                                             }
@@ -106,10 +88,31 @@ def get_parsed_query(request):
                             }
                     }
 
-    parsed_query = {"method":"get",
-                    'for': '192.168.0.5',
-                    "x":[4,4,4,4],
-                    "y":[1,2,3,4]
+
+
+    #parsed_query = {"method":"get",
+    #                'for': '10.0.115.156',
+    #                "x":[4,4,4,4],
+    #                "y":[1,2,3,4]
+    #                }
+
+    parsed_query = {"method":"logic",
+                    "type":"and",
+                    "vals":{"method":"compare",
+                            "arg1":{"method":"get",
+                                    'for': '10.0.115.156',
+                                    "x":[2,2,2,2],
+                                    "y":[1,2,3,4]
+                                    },
+                            "arg2":{"method":"sort",
+                                    "des": False,
+                                    "vals":{"method":"get",
+                                            'for': '10.0.115.156',
+                                            "x":[2,2,2,2],
+                                            "y":[1,2,3,4]
+                                            }
+                                    }
+                            }
                     }
 
 
@@ -117,16 +120,20 @@ def get_parsed_query(request):
                     "type":"and",
                     "vals":{"method":"compare",
                             "arg1":{"method":"get",
-                                    'for': 'all',
+                                    'for': '0.0.0.0',
                                     "x":[2,2,2,2],
-                                    "y":[1,2,3,4]
+                                    "y":[1,'..',4],
+                                    'sheet': [1],
+                                    'type': 'numeric'
                                     },
                             "arg2":{"method":"sort",
                                     "des": False,
                                     "vals":{"method":"get",
-                                            'for': 'all',
+                                            'for': '0.0.0.0',
                                             "x":[2,2,2,2],
-                                            "y":[1,2,3,4]
+                                            "y":[1,'..',4],
+                                            'sheet': [1],
+                                            'type': 'numeric'
                                             }
                                     }
                             }
@@ -141,18 +148,18 @@ def get_parsed_query(request):
 
 
     id = 1
-    #my_connected_clients={'0.0.0.0':'ble'}
+    my_connected_clients={'0.0.0.0':'ble'}
 
     #parsed_query=json.loads(request.body.decode('utf-8'))
-    my_connected_clients = connected_clients
+    #my_connected_clients = connected_clients
 
     parsed_query,_ = parse_query(parsed_query,id, my_connected_clients)
-
+    print(parsed_query)
     #Guardar parsed_query en base de datos y luego determinar que mandar al cliente
     save_parsed_query_to_database(parsed_query,my_connected_clients)
 
     client_side_query = get_client_side_query(parsed_query,my_connected_clients)
-    #print(client_side_query)
+    print(client_side_query)
     for c in client_side_query:
         for m in client_side_query[c]:
             message = json.dumps(m)+"\r\n"

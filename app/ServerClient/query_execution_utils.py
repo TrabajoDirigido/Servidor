@@ -2,8 +2,10 @@ import json
 from .models import Result, Argument, Query
 from functools import reduce
 import copy
+import logging
 __author__ = 'Camila Alvarez'
 
+logger = logging.getLogger('error')
 def execute_query(query):
     query_text = eval(query.query)
     try:
@@ -16,14 +18,16 @@ def execute_query(query):
                  'max': _execute_max}
         return options[method](query)
     except KeyError:
-        raise Exception('Invalid query')
+        logger.exception(Exception('Invalid query'))
 
 
 def _execute_compare(query):
     if query.remaining_args != 0:
         for a in Query.objects.filter(parent=query.id):
             if a.remaining_args != 0:
-                raise Exception("This query shouldn't be executing")
+                logger.exception(Exception("This query shouldn't be executing"))
+                return
+
             execute_query(a)
 
     arg1 = []
@@ -37,7 +41,8 @@ def _execute_compare(query):
             arg2.append(eval(a.value))
 
     if len(arg1) != len(arg2):
-        raise Exception('Invalid arguments')
+        logger.exception(Exception('Invalid arguments'))
+        return
 
     for i in range(0, len(arg1)):
         val = arg1[i] == arg2[i]
@@ -52,7 +57,8 @@ def _execute_vals_function(query,f,type):
     if query.remaining_args != 0:
         for a in Query.objects.filter(parent=query.id):
             if a.remaining_args != 0:
-                raise Exception("This query shouldn't be executing")
+                logger.exception(Exception("This query shouldn't be executing"))
+                return
             execute_query(a)
 
     args = query.arguments.all()
@@ -71,7 +77,8 @@ def _execute_vals_function(query,f,type):
 def _check_bool_arg(args):
     for a in args:
         if not type(a) is bool:
-            raise Exception('Wrong type argument')
+            logger.exception(Exception('Wrong type argument'))
+            return
 
 def _execute_logic(query):
     query_type = eval(query.query)['type']

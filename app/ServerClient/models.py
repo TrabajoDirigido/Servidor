@@ -22,6 +22,7 @@ class Argument(models.Model):
 
 class Query(models.Model):
     id = models.IntegerField(primary_key=True)
+    name = models.TextField()
     query = models.TextField()
     lab = models.ForeignKey(Lab)
     parent= models.IntegerField()

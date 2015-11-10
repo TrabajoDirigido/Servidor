@@ -1,8 +1,10 @@
 from .utils_for import replace_for_value
 from .query_execution_utils import execute_query
 from .models import Query
+import logging
 __author__ = 'Camila Alvarez'
 
+logger = logging.getLogger('error')
 def parse_query(query,id,clients): #debe retornar el id
     if not type(query) is dict:
         return (query, id)
@@ -22,26 +24,24 @@ def parse_query(query,id,clients): #debe retornar el id
         }
         return options[method](query,id,clients)
     except KeyError as e:
-        raise Exception('Invalid query')
+        logger.error(Exception('Invalid Query'))
 
 
 def _get(query,id,clients):
+    new_query = {'id': id,
+                 'method': 'get',
+                 'x': query['x'],
+                 'y': query['y'],
+                 'for': query['for'],
+                 'AS': query['AS'] if 'AS' in query else 'get'+str(id),
+                 'type': query['type'],
+                 'sheet': query['sheet']}
+    if query['for'] == 'all' or type(query['for']) is list :
+        new_query['side'] = 'server'
+    else:
+        new_query['side'] = 'client'+str(query['for'])
 
-    return ({'id':id,
-             'method': 'get',
-             'x': query['x'],
-             'y': query['y'],
-             'for': query['for'],
-             'side': 'server'},id+1) if query['for'] == 'all' \
-                                              or type(query['for']) is list \
-        else ({'id':id,
-               'method':'get',
-               'x':query['x'],
-               'y':query['y'],
-               'for': query['for'],
-               'side': 'client'+str(query['for'])},
-               id+1)
-
+    return new_query, id+1
 
 def _parse_args(query,id,clients):
     if type(query) is list:
@@ -70,6 +70,7 @@ def _compare(query, id,clients):
             'method': 'compare',
             'arg1': arg1,
             'arg2': arg2,
+            'AS': query['AS'] if 'AS' in query else 'compare'+str(comp_id),
             'side': side}, new_id)
 
 
@@ -77,6 +78,7 @@ def _not_empty(query,id,clients):
     return ({'id': id,
              'method': 'not_empty',
              'side': 'client',
+             'AS': query['AS'] if 'AS' in query else 'not_empty'+str(id),
              'x': query['x'],
              'y': query['y']},id+1)
 
@@ -142,6 +144,7 @@ def _list_value_operation(query,id, method,clients):
     vals, new_id = _vals_operations(query,id,clients)
     return({'id':id,
             'method': method,
+            'AS': query['AS'] if 'AS' in query else method+str(id),
             'side': _get_list_side(vals),
             'vals': vals}, new_id)
 
@@ -152,6 +155,7 @@ def _logic_methods(query,id,method_type,clients):
     return({'id':id,
             'method': 'logic',
             'side':_get_list_side(vals),
+            'AS': query['AS'] if 'AS' in query else method_type+str(id),
             'type': method_type,
             'vals': vals}, new_id)
 
@@ -168,6 +172,7 @@ def _for_operation(query,id,clients):
     return({'id':id,
             'method':'for',
             'vals':vals,
+            'AS': query['AS'] if 'AS' in query else 'for'+str(id),
             'side':parsed_query['side'],#_get_list_side(vals),
             'query':parsed_query}, new_id)
 
@@ -178,6 +183,7 @@ def _set_alarm(query,id,clients):
             'method': 'alarm',
             'query': parsed_query,
             'side':'server',
+            'AS': query['AS'] if 'AS' in query else 'alarm'+str(id),
             'time': query['time']}, new_id)
 
 #---------------------------------------------------------------------------
@@ -207,13 +213,15 @@ def _recursive_get_client_side_query(query, client_dict,clients):
         }
         return options[method](query,client_dict,clients)
     except KeyError as e:
-        raise Exception('Invalid query')
+        logger.exception(Exception('Invalid query'))
 
 
 def _get_client(query, client_dict,clients):
     client = query['for']
     new_query = _format_query_to_client({'id': query['id'],
                                         'method': 'get',
+                                        'type': query['type'],
+                                         'sheet': query['sheet'],
                                         'x': query['x'],
                                         'y': query['y']})
     if client=='all':
@@ -227,11 +235,15 @@ def _get_client(query, client_dict,clients):
 
     return
 
-
+def _assign_query_to_client(query, client_dict):
+    client = _get_client_name(query)
+    if client in client_dict:
+        client_dict[_get_client_name(query)].append(_format_query_to_client(query))
 
 def _vals_client(query,client_dict,clients):
     if query['side'][0:6]=='client':
-        client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+        _assign_query_to_client(query,client_dict)
+        #client_dict[_get_client_name(query)].append(_format_query_to_client(query))
     else:
         if not type(query['vals']) is list:
             return _recursive_get_client_side_query(query['vals'], client_dict,clients)
@@ -242,7 +254,8 @@ def _vals_client(query,client_dict,clients):
 def _compare_client(query, client_dict,clients):
 
     if query['side'][0:6]=='client':
-        client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+        _assign_query_to_client(query,client_dict)
+        #client_dict[_get_client_name(query)].append(_format_query_to_client(query))
     else:
         _recursive_get_client_side_query(query['arg1'],client_dict,clients)
         _recursive_get_client_side_query(query['arg2'],client_dict,clients)
@@ -269,7 +282,7 @@ def _get_client_name(query):
         }
         return options[method](query)
     except KeyError as e:
-        raise Exception('Invalid query')
+        logger.exception(Exception('Invalid query'))
 
 
 def _get_name(query):
@@ -293,10 +306,7 @@ def _vals_name(query):
             return name
 
 def _for_operation_name(query):
-    #name = _vals_name(query)
-    #if name is None:
     return _get_client_name(query['query'])
-    #return name
 
 #---------------------------------------------------------------------
 
@@ -314,12 +324,7 @@ def _format_query_to_client(query):
                 query_type='float'
 
             except ValueError:
-                try:
-                    bool(query)
-                    query_type='bool'
-
-                except ValueError:
-                    query_type='string'
+                query_type='string'
 
         return {'var':query, 'type': query_type}
     try:
@@ -351,6 +356,8 @@ def _get_query_client(query):
 
     return {'id': query['id'],
             'method': 'get',
+            'type': _format_query_to_client(query['type']),
+            'sheet': [_format_query_to_client(e) for e in query['sheet']],
             'x': parsed_x,
             'y': parsed_y}
 
