@@ -35,7 +35,7 @@ def _get(query,id,clients):
                  'for': query['for'],
                  'AS': query['AS'] if 'AS' in query else 'get'+str(id),
                  'type': query['type'],
-                 'sheet': query['sheet']}
+                 'sheet': query['sheet'] if 'sheet' in query else [1]}
     if query['for'] == 'all' or type(query['for']) is list :
         new_query['side'] = 'server'
     else:
