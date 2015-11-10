@@ -21,6 +21,16 @@ def execute_query(query):
         logger.exception(Exception('Invalid query'))
 
 
+def _execute_for_one_longer_list(query,long_arg,short_arg):
+    for i in range(0, len(long_arg)):
+        val = short_arg == long_arg[i]
+        result = Result(value=val, type='bool')
+        result.save()
+        query.results.add(result)
+    query.remaining_results -= 1
+    query.save()
+
+
 def _execute_compare(query):
     if query.remaining_args != 0:
         for a in Query.objects.filter(parent=query.id):
@@ -40,17 +50,22 @@ def _execute_compare(query):
         else:
             arg2.append(eval(a.value))
 
-    if len(arg1) != len(arg2):
+    if len(arg1) != len(arg2) and len(arg1)!=1 and len(arg2)!=1:
         logger.exception(Exception('Invalid arguments'))
         return
 
-    for i in range(0, len(arg1)):
-        val = arg1[i] == arg2[i]
-        result = Result(value=val, type='bool')
-        result.save()
-        query.results.add(result)
-    query.remaining_results -= 1
-    query.save()
+    if len(arg1)==1:
+        _execute_for_one_longer_list(query,arg2,arg1[0])
+    elif len(arg2)==1:
+        _execute_for_one_longer_list(query,arg1,arg2[0])
+    else:
+        for i in range(0, len(arg1)):
+            val = arg1[i] == arg2[i]
+            result = Result(value=val, type='bool')
+            result.save()
+            query.results.add(result)
+        query.remaining_results -= 1
+        query.save()
 
 
 def _execute_vals_function(query,f,type):

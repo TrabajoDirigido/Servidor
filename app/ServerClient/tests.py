@@ -54,10 +54,37 @@ class ParseQueryTest(TestCase):
         res = [eval(r.value) for r in Query.objects.get(id=1).results.all()]
         self.assertEquals(res,[3])
 
+    def test_compare_one_value_arg1(self):
+        parsed_query = {'method': 'compare',
+                        'arg1':[1],
+                        'arg2':[1,2,1]}
+
+        parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
+        print(parsed_query)
+        save_parsed_query_to_database(parsed_query,self.my_connected_clients)
+
+        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        res = [eval(r.value) for r in Query.objects.get(id=1).results.all()]
+        self.assertEquals(res,[True, False,True])
+
+
+    def test_compare_one_value_arg2(self):
+        parsed_query = {'method': 'compare',
+                        'arg2':[1],
+                        'arg1':[1,2,1]}
+
+        parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
+        print(parsed_query)
+        save_parsed_query_to_database(parsed_query,self.my_connected_clients)
+
+        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        res = [eval(r.value) for r in Query.objects.get(id=1).results.all()]
+        self.assertEquals(res,[True, False,True])
+
     def test_sort_desc(self):
         parsed_query = {'method': 'sort',
                         'vals':[1,-1,5,100,46],
-                        'desc': True
+                        'des': True
                         }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
         print(parsed_query)
@@ -70,7 +97,7 @@ class ParseQueryTest(TestCase):
     def test_sort_asc(self):
         parsed_query = {'method': 'sort',
                         'vals':[1,-1,5,100,46],
-                        'desc': False
+                        'des': False
                         }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
         print(parsed_query)
