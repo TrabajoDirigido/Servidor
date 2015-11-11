@@ -5,7 +5,8 @@ import json
 import copy
 import socket
 from .database_utils import save_parsed_query_to_database, save_result
-from .utils import parse_query, get_client_side_query
+from .utils import parse_query
+from .client_side_utils import get_client_side_query
 from django.views.decorators.csrf import csrf_exempt
 import logging
 connected_clients = {}
@@ -123,7 +124,7 @@ def get_parsed_query(request):
                                     'for': '0.0.0.0',
                                     "x":[2,2,2,2],
                                     "y":[1,'..',4],
-                                    'sheet': [1],
+                                    'sheet': 1,
                                     'type': 'numeric'
                                     },
                             "arg2":{"method":"sort",
@@ -132,7 +133,7 @@ def get_parsed_query(request):
                                             'for': '0.0.0.0',
                                             "x":[2,2,2,2],
                                             "y":[1,'..',4],
-                                            'sheet': [1],
+                                            'sheet': 1,
                                             'type': 'numeric'
                                             }
                                     }

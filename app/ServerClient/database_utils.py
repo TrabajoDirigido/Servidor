@@ -51,7 +51,8 @@ def _save_recursive(query,parent,clients, arg1):
             'min': _save_vals_operation,
             'max': _save_vals_operation,
             'for': _save_vals_operation,
-            'alarm': _save_set_alarm
+            'alarm': _save_set_alarm,
+            'filter': _save_vals_operation
         }
         return options[method](query,parent,clients, arg1)
     except KeyError as e:
@@ -79,7 +80,7 @@ def _execute_if_posible(query):
     q = Query.objects.get(id=query['id'])
     if q.remaining_args == 0:
         execute_query(q)
-        if q.parent!=-1:
+        if q.parent != -1:
             parent_obj = Query.objects.get(id=q.parent)
             parent_obj.remaining_args -= 1
             for r in q.results.all():

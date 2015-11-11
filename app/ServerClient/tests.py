@@ -1,9 +1,11 @@
 #__author__ = 'Camila Alvarez'
 from django.test import TestCase
-from ServerClient.utils import parse_query, get_client_side_query
+from ServerClient.utils import parse_query
+from ServerClient.client_side_utils import get_client_side_query
 from ServerClient.database_utils import save_parsed_query_to_database
 from django.test.utils import setup_test_environment
 from ServerClient.models import Argument,Query
+
 
 class ParseQueryTest(TestCase):
 
@@ -33,12 +35,59 @@ class ParseQueryTest(TestCase):
                                                 'arg2': [2]}, False]}
                     }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
+        #print(parsed_query)
+        save_parsed_query_to_database(parsed_query,self.my_connected_clients)
+
+        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        res = [eval(r.value) for r in Query.objects.get(id=1).results.all()]
+        self.assertEquals(res,[True])
+
+    def test_filter(self):
+        parsed_query = {'method': 'filter',
+                        'vals':{'method': 'compare',
+                                'arg1': [2,5,6],
+                                'arg2': [3,4,6]},
+                        'filter':{'type': 'equal', 'var': True}
+                        }
+        parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
         print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
         res = [eval(r.value) for r in Query.objects.get(id=1).results.all()]
         self.assertEquals(res,[True])
+
+
+    def test_filter_2(self):
+        parsed_query = {'method': 'filter',
+                        'vals':{'method': 'compare',
+                                'arg1': [2,5,6],
+                                'arg2': [3,4,6]},
+                        'filter':{'type': 'equal', 'var': False}
+                        }
+        parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
+        print(parsed_query)
+        save_parsed_query_to_database(parsed_query,self.my_connected_clients)
+
+        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        res = [eval(r.value) for r in Query.objects.get(id=1).results.all()]
+        self.assertEquals(res,[False, False])
+
+
+    def test_filter_3(self):
+        parsed_query = {'method': 'filter',
+                        'vals':{'method': 'compare',
+                                'arg1': [2,5,6],
+                                'arg2': [3,4,6]},
+                        'filter':{'type': 'equal', 'var': 3}
+                        }
+        parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
+        print(parsed_query)
+        save_parsed_query_to_database(parsed_query,self.my_connected_clients)
+
+        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        res = [eval(r.value) for r in Query.objects.get(id=1).results.all()]
+        self.assertEquals(res,[])
 
     def test_count(self):
         parsed_query = {'method': 'count',
@@ -47,7 +96,7 @@ class ParseQueryTest(TestCase):
                                 'arg2': [3,4,6]}
                          }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
-        print(parsed_query)
+        #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
@@ -60,7 +109,7 @@ class ParseQueryTest(TestCase):
                         'arg2':[1,2,1]}
 
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
-        print(parsed_query)
+        #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
@@ -74,7 +123,7 @@ class ParseQueryTest(TestCase):
                         'arg1':[1,2,1]}
 
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
-        print(parsed_query)
+        #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
@@ -87,7 +136,7 @@ class ParseQueryTest(TestCase):
                         'des': True
                         }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
-        print(parsed_query)
+        #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
@@ -100,7 +149,7 @@ class ParseQueryTest(TestCase):
                         'des': False
                         }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
-        print(parsed_query)
+        #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
@@ -113,7 +162,7 @@ class ParseQueryTest(TestCase):
                         'vals':[1,-1,5,100,46]
                         }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
-        print(parsed_query)
+        #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
@@ -125,7 +174,7 @@ class ParseQueryTest(TestCase):
                         'vals':[1,-1,5,100,46]
                         }
         parsed_query,_ = parse_query(parsed_query,1,self.my_connected_clients)
-        print(parsed_query)
+        #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)

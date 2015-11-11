@@ -15,7 +15,9 @@ def execute_query(query):
                  'count': _execute_count,
                  'sort': _execute_sort,
                  'min': _execute_min,
-                 'max': _execute_max}
+                 'max': _execute_max,
+                 'filter': _execute_filter
+                 }
         return options[method](query)
     except KeyError:
         logger.exception(Exception('Invalid query'))
@@ -68,6 +70,7 @@ def _execute_compare(query):
         query.save()
 
 
+
 def _execute_vals_function(query,f,type):
     if query.remaining_args != 0:
         for a in Query.objects.filter(parent=query.id):
@@ -112,6 +115,22 @@ def _execute_or(query):
         _check_bool_arg(args)
         return [reduce((lambda x,y : x or y), args, False)]
     return _execute_vals_function(query, _my_or, 'bool')
+
+def _execute_filter(query):
+    def _my_filter():
+        query_text = eval(query.query)
+        my_filter = query_text['filter']
+        value = my_filter['var']
+        method = my_filter['type']
+        def _inside_filter(args):
+            return list(filter({
+                            'equal': lambda compare_value:  value == compare_value,
+                            'not_equal': lambda compare_value: value != compare_value
+                            }[method],
+                          args))
+        return _inside_filter
+
+    return _execute_vals_function(query, _my_filter(), 'int')
 
 
 def _execute_count(query):
