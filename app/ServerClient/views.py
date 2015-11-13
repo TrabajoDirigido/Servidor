@@ -134,7 +134,7 @@ def get_parsed_query(request):
                                             "x":[2,2,2,2],
                                             "y":[1,'..',4],
                                             'sheet': 1,
-                                            'type': 'numeric'
+                                            'type': 'float'
                                             }
                                     }
                             }
@@ -148,7 +148,14 @@ def get_parsed_query(request):
         id=1
 
 
-    id = 1
+    parsed_query = {'method': 'filter',
+                        'vals':{'method': 'compare',
+                                'arg1': [2,5,6],
+                                'arg2': [3,4,6]},
+                        'filter':{'type': 'equal', 'var': True}
+                        }
+
+    #id = 1
     my_connected_clients={'0.0.0.0':'ble'}
 
     #parsed_query=json.loads(request.body.decode('utf-8'))

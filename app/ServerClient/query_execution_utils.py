@@ -26,9 +26,8 @@ def execute_query(query):
 def _execute_for_one_longer_list(query,long_arg,short_arg):
     for i in range(0, len(long_arg)):
         val = short_arg == long_arg[i]
-        result = Result(value=val, type='bool')
+        result = Result(value=val, type='bool', query=query)
         result.save()
-        query.results.add(result)
     query.remaining_results -= 1
     query.save()
 
@@ -44,7 +43,7 @@ def _execute_compare(query):
 
     arg1 = []
     arg2 = []
-    args = query.arguments.all()
+    args = Argument.objects.filter(query=query)
 
     for a in args:
         if a.arg1:
@@ -63,9 +62,8 @@ def _execute_compare(query):
     else:
         for i in range(0, len(arg1)):
             val = arg1[i] == arg2[i]
-            result = Result(value=val, type='bool')
+            result = Result(value=val, type='bool', query=query)
             result.save()
-            query.results.add(result)
         query.remaining_results -= 1
         query.save()
 
@@ -79,16 +77,15 @@ def _execute_vals_function(query,f,type):
                 return
             execute_query(a)
 
-    args = query.arguments.all()
+    args = Argument.objects.filter(query=query)
     new_args =[]
     for a in args:
         new_args.append(eval(a.value))
 
     result = f(new_args) #Entrega una lista de resultados (aunque sea uno)
     for r in result:
-        res = Result(value=r, type=type)
+        res = Result(value=r, type=type, query=query)
         res.save()
-        query.results.add(res)
     query.remaining_results -= 1
     query.save()
 
@@ -148,16 +145,16 @@ def _execute_sort(query):
     desc = True
     if 'des' in query_text:
         desc = query_text['des']
-    arg1 = query.arguments.all()[0]
+    arg1 = Argument.objects.filter(query=query)[0]
     return _execute_vals_function(query, _my_sort(desc), arg1.type)
 
 
 def _execute_min(query):
-    arg1 = query.arguments.all()[0]
+    arg1 = Argument.objects.filter(query=query)[0]
 
     return _execute_vals_function(query, lambda x: [min(x)], arg1.type)
 
 
 def _execute_max(query):
-    arg1 = query.arguments.all()[0]
+    arg1 = Argument.objects.filter(query=query)[0]
     return _execute_vals_function(query, lambda x: [max(x)], arg1.type)

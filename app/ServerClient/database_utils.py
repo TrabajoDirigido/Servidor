@@ -33,9 +33,8 @@ def _save_recursive(query,parent,clients, arg1):
         my_type = _get_type(query)
         parent_obj = Query.objects.get(id=parent)
         parent_obj.remaining_args -= 1
-        arg = Argument(value=query, type=my_type, arg1=arg1)
+        arg = Argument(value=query, type=my_type, arg1=arg1, query=parent_obj)
         arg.save()
-        parent_obj.arguments.add(arg)
         parent_obj.save()
         return
 
@@ -83,11 +82,11 @@ def _execute_if_posible(query):
         if q.parent != -1:
             parent_obj = Query.objects.get(id=q.parent)
             parent_obj.remaining_args -= 1
-            for r in q.results.all():
-                arg = Argument(value=r.value, type=r.type, arg1=q.arg1)
+            for r in Result.objects.filter(query=q):
+                arg = Argument(value=r.value, type=r.type, arg1=q.arg1, query=parent_obj)
                 arg.save()
-                parent_obj.arguments.add(arg)
             parent_obj.save()
+            q.delete()
 
 
 def _save_get(query,parent,clients, arg1):
@@ -141,9 +140,8 @@ def save_result(id, result,origin):
         for res in result:
             value = res['var']
             type = res['type']
-            result = Result(value=value, type=type, origin=origin)
+            result = Result(value=value, type=type, origin=origin, query=query)
             result.save()
-            query.results.add(result)
         query.remaining_results -= 1
         query.save()
         if query.remaining_results == 0:
@@ -165,14 +163,14 @@ def _update_results(query):
         old_query = query
         parent = old_query.parent
         query = Query.objects.get(id=parent)
-        res = old_query.results.all()
+        res = Result.objects.filter(query=old_query)
 
         for r in res:
-            new_arg = Argument(value=r.value, type= r.type, arg1=old_query.arg1)
+            new_arg = Argument(value=r.value, type= r.type, arg1=old_query.arg1, query=query)
             new_arg.save()
-            query.arguments.add(new_arg)
         query.remaining_args -= 1
         query.save()
+        old_query.delete()
         query_text = eval(query.query)
 
 
