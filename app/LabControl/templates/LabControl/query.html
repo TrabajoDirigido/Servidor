@@ -104,10 +104,17 @@
                 </div>
             </div>
             <form>
-              <label for="query">Consulta:</label>
-              <br>
-              <textarea class="form-control" rows="5" id="query" name="query" placeholder="Escriba su query aquí"></textarea>
-              <br>
+                <br>
+                {{ query_form.query_name }}
+                <br>
+                <label for="id_query_body">Construya su consulta:</label>
+                <br>
+                {{ query_form.query_body }}
+                <br>
+                <!--<label for="subquery_body">Construya su consulta:</label>-->
+                <div id="subquery_body"></div>
+                <br>
+                <br>
               <button type="submit" class="btn btn-primary">Realizar consulta</button>
             </form>
 
@@ -127,7 +134,9 @@
     <!-- FOOTER SECTION END-->
     <!-- JAVASCRIPT AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
     <!-- CORE JQUERY SCRIPTS -->
-    <script src="{% static 'LabControl/js/jquery-1.11.1.js' %}"></script>
+    <script src="{% static 'LabControl/js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'LabControl/js/query_dicts.js' %}"></script>
+    <script src="{% static 'LabControl/js/query_execution.js' %}"></script>
     <!-- BOOTSTRAP SCRIPTS  -->
     <script src="{% static 'LabControl/js/bootstrap.js' %}"></script>
 </body>

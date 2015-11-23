@@ -13,7 +13,8 @@ def home(request):
 
 
 def query(request):
-    return render_to_response('LabControl/query.html')
+    query_form = QueryForm()
+    return render_to_response('LabControl/query.html', {'query_form': query_form})
 
 
 def add_lab(request):
