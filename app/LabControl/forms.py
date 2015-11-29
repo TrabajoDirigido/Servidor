@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.safestring import mark_safe
+from ServerClient.models import Lab
 
 
 class LoginForm(forms.Form):
@@ -13,6 +14,12 @@ class LoginForm(forms.Form):
 
 
 class QueryForm(forms.Form):
+    select_seccion = forms.ChoiceField(label="Elija una seccion",
+                                       choices=[(v,v) for v in Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()],
+                                       widget=forms.Select(attrs={
+                                            'id': 'section_select'
+                                        }
+                                       ))
     query_name = forms.CharField(label= 'Nombre de la consulta',
                                  widget=forms.TextInput(attrs={'class': 'form-control',
                                                              'placeholder': 'Nombra tu query aqui',
@@ -23,5 +30,14 @@ class QueryForm(forms.Form):
                                    widget=forms.Select(attrs={
                                             'id': '0-0',
                                             'onChange': 'loadQueryArguments()'}))
+
+
+class ResultsForm(forms.Form):
+    select_seccion = forms.ChoiceField(label="Elija una seccion",
+                                       choices=[(v,v) for v in Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()],
+                                       widget=forms.Select(attrs={
+                                            'id': 'section_select'
+                                        }
+                                       ))
 
 

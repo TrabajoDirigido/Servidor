@@ -12,7 +12,13 @@ $('#document').ready(function() {
     }
     $.fn.exists = function () {
         return this.length !== 0;
-    }
+    };
+    div = $('#lab_div');
+    div.append($('<br>'));
+    div.append($('<label>Laboratorio:</label>'));
+    generate_select_lab();
+    add_options_to_select($('#select_lab'),labs);
+    $('#section_select option:first-child').attr("selected", "selected");
 });
 
 function generateColor(){
@@ -51,9 +57,16 @@ function loadQueryArguments(){
     select_value = query_select.val();
 
     div_sub_query = $('#subquery_body');
-
     refreshDiv(div_sub_query);
-    div_sub_query.find('select, input, label, br').remove();
+    if(select_value == 'GET'){
+        div_sub_query.attr('style', "");
+    }
+    else{
+        div_sub_query.attr('style', "padding-left: 40px;");
+    }
+
+
+    div_sub_query.find('select, input, label, br, button').remove();
 
     if(!(select_value in query_dict)){
         return;
@@ -69,18 +82,46 @@ function loadQueryArguments(){
 
 }
 
+
+function deleteEntry(id){
+    $('#'+id).remove();
+    $('#but_'+id).remove();
+    $('br').remove("."+id);
+}
+
+function loadAndOr(id){
+    console.log(id);
+    div = $('#div_'+id);
+    if(!div.exists()){
+        div = $('<div id="div_'+id+'" ></div>').insertAfter($('#but_'+id));
+    }
+
+    addSelect(div, and_or,0, parent,pure_id);
+    console.log(id_query_select);
+    new_id = id_query_select-1;
+    $('<button id="but_'+new_id+'-'+parent+'" onclick="deleteEntry(\''+new_id+'-'+parent+'\'); return false">-</button>')
+        .insertAfter($('#'+new_id+'-'+parent));
+}
+
+
 function loadSubQueryOptions(id){
     parent = parseInt(id.substr(id.indexOf('-')+1));
     pure_id = parseInt(id.substr(0,id.indexOf('-')));
     div_sub_query = $('#subquery_body');
+    selected_sub_query = $('#'+id);
+    var style = "padding-left: 40px;";
 
-    console.log('before: '+id_query_select);
     div = $('#div_'+id);
     refreshDiv(div);
-    console.log('after: '+id_query_select);
+    $('#but_'+id).remove();
     div.remove();
 
-    new_div = $('<div id="div_'+id+'" ></div>').insertAfter($('#'+id));
+    if(selected_sub_query.val()=='AND|OR'){
+        $('<button id="but_'+id+'" onclick="loadAndOr(\''+id+'\'); return false">+</button>').insertAfter($('#'+id));
+        return
+    }
+
+
 
     key = $('#'+id+" option:selected").text();
     if(!(key in query_dict)){
@@ -88,13 +129,18 @@ function loadSubQueryOptions(id){
             return;
         return loadSubQueryArguments(id,div_sub_query,parent,pure_id);
     }
+    new_div = $('<div style="padding-left:40px;" id="div_'+id+'" ></div>').insertAfter(selected_sub_query);
 
+    if(["GET","GET_COMPARABLE","GET_OBJECT", "FILTER", "AND|OR",'VAR'].indexOf(selected_sub_query.val())>=0){
+        style = "";
+        new_div.attr('style', "");
+    }
     next_select = query_dict[key];
     arguments = argument_dict[key];
 
     div = new_div;
     for(j=0; j<next_select.length;j++) {
-        arg_div=$('<div id="div_arg_'+id_query_select+'-'+j+'" ></div>').appendTo(new_div);
+        arg_div=$('<div style='+style+' id="div_arg_'+id_query_select+'-'+j+'" ></div>').appendTo(new_div);
         color = generateColor();
         addSelectArgument(arg_div,arguments, j, pure_id,color,parent);
         addCloseArgument(arg_div,arguments,j,pure_id,color,parent);
@@ -163,3 +209,33 @@ function refreshDiv(div){
     });
 
 }
+
+function generate_select_lab(){
+    $('#lab_div').append($('<select id="select_lab" name="select_lab" onchange="loadLabData()">'));
+}
+
+function add_options_to_select(select,data){
+    for(var key in data){
+            select.append($('<option>',{
+                value: key,
+                text: data[key]
+            }));
+        }
+}
+
+
+$('#section_select').change(function(){
+    div = $('#lab_div');
+    div.find('select').remove();
+    generate_select_lab();
+
+    $.ajax({
+        method: "GET",
+        url: "/lab_control/get_labs_per_seccion/",
+        data: { seccion: $(this).val() }
+    })
+    .success(function( data ) {
+        new_select = $('#select_lab');
+        add_options_to_select(new_select,data['labs']);
+    });
+});

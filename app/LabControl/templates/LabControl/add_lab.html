@@ -37,7 +37,7 @@
                     <ul class="nav">
 
                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                            <a class="dropdown-toggle" data-toggle="" href="#" aria-expanded="false">
                                 <span class="glyphicon glyphicon-list-alt" style="font-size: 25px;"></span>
                             </a>
                             <div class="dropdown-menu dropdown-settings">
@@ -73,11 +73,11 @@
                 <div class="col-md-12">
                     <div class="navbar-collapse collapse ">
                       <ul id="menu-top" class="nav navbar-nav navbar-right">
-                          <li><a href="/lab_control/home">Resumen</a></li>
+                          <li><a href="/lab_control/home/">Resumen</a></li>
                           <li><a class="menu-top-active" href=".">Agregar laboratorio</a></li>
-                          <li><a href="/lab_control/query">Realizar consulta</a></li>
-                          <li><a href="/lab_control/results">Resultados</a></li>
-                          <li><a href="/lab_control/">Logout</a></li>
+                          <li><a href="/lab_control/query/">Realizar consulta</a></li>
+                          <li><a href="/lab_control/results/">Resultados</a></li>
+                          <li><a href="/lab_control/teacher_logout/">Logout</a></li>
 
                       </ul>
                     </div>
@@ -95,6 +95,29 @@
                     </div>
               </div>
 
+                {% if invalid_date %}
+                    <script type="text/javascript">
+                        alert("Fecha inválida");
+                    </script>
+                {% endif %}
+
+                {% if invalid_section %}
+                    <script type="text/javascript">
+                        alert("Sección Inválida");
+                    </script>
+                {% endif %}
+
+                {% if used_name %}
+                    <script type="text/javascript">
+                        alert("Nombre ya usado");
+                    </script>
+                {% endif %}
+
+                {% if success %}
+                    <script type="text/javascript">
+                        alert("Laboratorio agregado exitosamente");
+                    </script>
+                {% endif %}
 
                 <div class="row">
                 <div class="col-md-12 col-sm-12">
@@ -103,18 +126,22 @@
                             Formulario para agregar laboratorio
                         </div>
                         <div class="panel-body">
-                            <form>
-                              <label>Nombre:</label>
-                              <br>
-                              <input type='text' name='name' placeholder="Nombre del laboratorio" class="form-control">
-                              <label>Tiempo de ejecución (min):</label>
-                              <br>
-                              <input type='number' name='time' placeholder="60" class="form-control">
-                              <label>Respuestas:</label>
-                              <br>
-                              <input type='file' name='answers'>
-                              <br>
-                              <button type="submit" class="btn btn-primary">Realizar consulta</button>
+                            <form method="post" action="/lab_control/add_lab/">
+                                {% csrf_token %}
+                                <label>Nombre:</label>
+                                <br>
+                                <input type='text' name='lab' placeholder="Nombre del laboratorio" class="form-control">
+                                <br>
+                                <label>Sección:</label>
+                                <br>
+                                <input type='text' name='seccion' placeholder="Número de la sección" class="form-control">
+                                <br>
+                                <label for="datepicker">Fecha:</label>
+                                <br>
+                                <input name='date' id="datepicker">
+                                <br>
+                                <br>
+                                <button type="submit" class="btn btn-primary">Agregar Laboratorio</button>
                             </form>
                         </div>
 
@@ -141,6 +168,8 @@
     <!-- JAVASCRIPT AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
     <!-- CORE JQUERY SCRIPTS -->
     <script src="{% static 'LabControl/js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'LabControl/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'LabControl/js/utils.js'%}"></script>
     <!-- BOOTSTRAP SCRIPTS  -->
     <script src="{% static 'LabControl/js/bootstrap.js' %}"></script>
 </body>

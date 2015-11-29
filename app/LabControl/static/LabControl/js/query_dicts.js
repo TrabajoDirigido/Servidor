@@ -1,13 +1,13 @@
 /**
  * Created by Camila Alvarez on 20-11-2015.
  */
-var options = ['GET', 'COUNT', 'OR', 'AND'];
+var options = ['GET', 'COUNT', 'AND','OR'];
 
 var get_array = ['GET_COMPARABLE', 'GET_OBJECT'];
 var get_comparable_array = ['GET_DOUBLE', 'GET_BOOLEAN', 'GET_FORMULA', 'GET_STRING'];
 
 var count_array = ['FILTER'];
-var or_and_array = ['AND', 'OR', 'EQUAL'];
+var or_and_array = ['AND|OR', 'EQUAL'];
 
 var equal_array = ['GET', 'VAR', 'SORT','EQUAL','FILTER'];
 var sort_array = ['GET_COMPARABLE', 'FILTER_COMPARABLE', 'EQUAL'];
@@ -18,6 +18,8 @@ var filter_comparable_array = ['GET_COMPARABLE', 'EQUAL', 'SORT'];
 
 var vars = ['DOUBLE', 'STRING', 'BOOLEAN'];
 
+var and_or = ['AND', 'OR'];
+
 var query_dict = {
     'GET': [get_array], 'GET_COMPARABLE': [get_comparable_array],
     'COUNT': [count_array], 'OR': [or_and_array], 'AND': [or_and_array], 'EQUAL': [equal_array,equal_array],
@@ -25,7 +27,7 @@ var query_dict = {
     'FILTER_COMPARABLE': [filter_comparable_array], 'VAR': [vars], 'COMPARE':[equal_array]
 };
 
-var get_arg = ['OBJETIVO:', 'Y: ', 'X: ' ];
+var get_arg = ['OBJETIVO:', 'HOJA:', 'Y: ', 'X: ' ];
 var var_arg = ['VALOR: '];
 var list_arg = ['ARGUMENTOS:   ['];
 var equal_arg = ['ARG1:   [', 'ARG2:   ['];

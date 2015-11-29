@@ -37,7 +37,7 @@
                     <ul class="nav">
 
                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                            <a class="dropdown-toggle" data-toggle="" href="#" aria-expanded="false">
                                 <span class="glyphicon glyphicon-list-alt" style="font-size: 25px;"></span>
                             </a>
                             <div class="dropdown-menu dropdown-settings">
@@ -74,10 +74,10 @@
                     <div class="navbar-collapse collapse ">
                         <ul id="menu-top" class="nav navbar-nav navbar-right">
                             <li><a class="menu-top-active" href=".">Resumen</a></li>
-                            <li><a href="/lab_control/add_lab">Agregar laboratorio</a></li>
-                            <li><a href="/lab_control/query">Realizar consulta</a></li>
-                            <li><a href="/lab_control/results">Resultados</a></li>
-                            <li><a href="/lab_control/">Logout</a></li>
+                            <li><a href="/lab_control/add_lab/">Agregar laboratorio</a></li>
+                            <li><a href="/lab_control/query/">Realizar consulta</a></li>
+                            <li><a href="/lab_control/results/">Resultados</a></li>
+                            <li><a href="/lab_control/teacher_logout/">Logout</a></li>
 
                         </ul>
                     </div>
@@ -88,6 +88,9 @@
     </section>
     <!-- MENU SECTION END-->
     <div class="content-wrapper">
+        <script type="text/javascript">
+            var page_number = "{{page_number}}"
+        </script>
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -96,26 +99,30 @@
                 </div>
 
             </div>
+            <form id="form" method="get" action="/lab_control/results/"></form>
             <div class="table-responsive">
-                       <table class="table table-striped table-bordered table-hover">
+                       <table id="table" class="table table-striped table-bordered table-hover">
                            <thead>
                                <tr>
                                    <th>Laboratorio</th>
+                                   <th>Sección</th>
+                                   <th>Fecha</th>
                                    <th>Resultados</th>
                                </tr>
                            </thead>
-                           <tbody>
-
-                               <tr>
-                                   <td>Lab 1: Matlab</td>
-                                   <td><a href="">Resultados</a></td>
-                               </tr>
-                               <tr>
-                                 <td>Lab 2: Excel</td>
-                                 <td><a href="">Resultados</a></td>
-                               </tr>
+                           <tbody id="tbody">
+                            {% for e in labs %}
+                                <tr>
+                                    <td>{{ e.lab }}</td>
+                                    <td>{{ e.seccion }}</td>
+                                    <td>{{ e.date }}</td>
+                                    <td><a onclick="loadResults('{{ e.lab }}','{{ e.seccion }}')"
+                                           style="cursor:pointer" >Resultados</a></td>
+                                </tr>
+                            {% endfor %}
                            </tbody>
                        </table>
+                    <div id="paginator"></div>
                    </div>
           </div>
 
@@ -136,6 +143,12 @@
     <!-- JAVASCRIPT AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
     <!-- CORE JQUERY SCRIPTS -->
    <script src="{% static 'LabControl/js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'LabControl/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'LabControl/js/jquery.jui_pagination.min.js' %}"></script>
+    <script src="{% static 'LabControl/js/paginator.js' %}"></script>
+    <script src="{% static 'LabControl/js/el.js' %}"></script>
+    <script src="{% static 'LabControl/js/en.js' %}"></script>
+    <script src="{% static 'LabControl/js/utils.js' %}" ></script>
     <!-- BOOTSTRAP SCRIPTS  -->
     <script src="{% static 'LabControl/js/bootstrap.js' %}"></script>
 </body>

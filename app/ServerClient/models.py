@@ -8,6 +8,7 @@ class ClientInfo(models.Model):
 
 class Lab(models.Model):
     lab = models.TextField()
+    seccion = models.TextField()
     date = models.DateField(default=str(datetime.date.today()))
 
 
