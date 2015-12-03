@@ -56,12 +56,14 @@ function loadQueryArguments(){
     query_select = $('#0-0');
     select_value = query_select.val();
 
-    div_sub_query = $('#subquery_body');
+    div_sub_query = $('#div_0-0');
     refreshDiv(div_sub_query);
     if(select_value == 'GET'){
+        style="";
         div_sub_query.attr('style', "");
     }
     else{
+        style="padding-left: 40px;";
         div_sub_query.attr('style', "padding-left: 40px;");
     }
 
@@ -75,9 +77,10 @@ function loadQueryArguments(){
     next_select = query_dict[select_value];
     for(j=0; j<next_select.length;j++) {
         color = generateColor();
-        addSelectArgument(div_sub_query,arguments,j,0, color,0);
-        addCloseArgument(div_sub_query,arguments,j,0, color,0);
-        addSelect(div_sub_query, next_select[j],j,0,0);
+        arg_div=$('<div style="'+style+'" id="div_arg_'+id_query_select+'-'+j+'" ></div>').appendTo(div_sub_query);
+        addSelectArgument(arg_div,arguments,j,0, color,0);
+        addCloseArgument(arg_div,arguments,j,0, color,0);
+        addSelect(arg_div, next_select[j],j,0,0);
     }
 
 }
@@ -90,14 +93,12 @@ function deleteEntry(id){
 }
 
 function loadAndOr(id){
-    console.log(id);
     div = $('#div_'+id);
     if(!div.exists()){
         div = $('<div id="div_'+id+'" ></div>').insertAfter($('#but_'+id));
     }
 
     addSelect(div, and_or,0, parent,pure_id);
-    console.log(id_query_select);
     new_id = id_query_select-1;
     $('<button id="but_'+new_id+'-'+parent+'" onclick="deleteEntry(\''+new_id+'-'+parent+'\'); return false">-</button>')
         .insertAfter($('#'+new_id+'-'+parent));
@@ -107,7 +108,7 @@ function loadAndOr(id){
 function loadSubQueryOptions(id){
     parent = parseInt(id.substr(id.indexOf('-')+1));
     pure_id = parseInt(id.substr(0,id.indexOf('-')));
-    div_sub_query = $('#subquery_body');
+    div_sub_query = $('#div_0-0');
     selected_sub_query = $('#'+id);
     var style = "padding-left: 40px;";
 
@@ -140,7 +141,7 @@ function loadSubQueryOptions(id){
 
     div = new_div;
     for(j=0; j<next_select.length;j++) {
-        arg_div=$('<div style='+style+' id="div_arg_'+id_query_select+'-'+j+'" ></div>').appendTo(new_div);
+        arg_div=$('<div style="'+style+'" id="div_arg_'+id_query_select+'-'+(j+parent)+'" ></div>').appendTo(new_div);
         color = generateColor();
         addSelectArgument(arg_div,arguments, j, pure_id,color,parent);
         addCloseArgument(arg_div,arguments,j,pure_id,color,parent);
@@ -184,20 +185,19 @@ function loadSubQueryArguments(id,div,parent,par_id){
         $('<br class='+new_id+' />').insertBefore(after);
 
         if(arguments[i]=='OBJETIVO:'){
-            $('<label id="obj_'+new_id+'" class="'+new_id+'-'+parent+'" for='+new_id+' >' + arguments[i]+'</label>').insertAfter(after);
-            new_select= $("<select id='"+new_id+
-               '-'+parent+"' name=\"query[]\" class='"+new_id+'-'+parent+"' />")
-             .insertAfter($('#obj_'+new_id));
+            $('<label id="obj_'+id_query_select+'" class="'+id_query_select+'-'+parent+'" for="'+id_query_select+'-'+parent+'" >' + arguments[i]+'</label>').insertAfter(after);
+            new_select= $("<select id='"+id_query_select+
+               '-'+parent+"' name=\"query[]\" class='"+id_query_select+'-'+parent+"' />")
+             .insertAfter($('#obj_'+id_query_select));
             //Se piden los alumnos conectados
             $("<option />", {value: 'TODOS', text: 'TODOS'}).appendTo(new_select);
             id_query_select++;
             continue;
         }
 
-        $('<label class="'+new_id+'-'+parent+'" for='+new_id+' >' + arguments[i]+'</label>'+
-            '<input type="text" id="'+new_id+'-'+parent+'" class="'+new_id+
+        $('<label class="'+id_query_select+'-'+parent+'" for="'+id_query_select+'-'+parent+'" >' + arguments[i]+'</label>'+
+            '<input type="text" id="'+id_query_select+'-'+parent+'" class="'+id_query_select+
             '-'+parent+'" size="20" name="query[]" value="" placeholder="" />').insertAfter(after);
-
         id_query_select++;
 
     }

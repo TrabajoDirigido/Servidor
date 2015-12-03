@@ -1,10 +1,10 @@
 /**
  * Created by Camila Alvarez on 20-11-2015.
  */
-var options = ['GET', 'COUNT', 'AND','OR'];
+var options = ['GET', 'COUNT', 'AND','OR', 'MIN', 'MAX'];
 
 var get_array = ['GET_COMPARABLE', 'GET_OBJECT'];
-var get_comparable_array = ['GET_DOUBLE', 'GET_BOOLEAN', 'GET_FORMULA', 'GET_STRING'];
+var get_comparable_array = ['GET_NUMERIC', 'GET_BOOLEAN', 'GET_FORMULA', 'GET_STRING'];
 
 var count_array = ['FILTER'];
 var or_and_array = ['AND|OR', 'EQUAL'];
@@ -15,29 +15,33 @@ var sort_array = ['GET_COMPARABLE', 'FILTER_COMPARABLE', 'EQUAL'];
 var filter_array = ['FILTER_OBJECT', 'FILTER_COMPARABLE'];
 var filter_object_array = ['GET_OBJECT'];
 var filter_comparable_array = ['GET_COMPARABLE', 'EQUAL', 'SORT'];
-
-var vars = ['DOUBLE', 'STRING', 'BOOLEAN'];
+var conditions_array = ['CONDITION_EQUAL', 'CONDITION_NOT_EQUAL'];
+var order_array = ['ASCENDENTE', 'DESCENDENTE'];
+var vars = ['NUMERIC', 'STRING', 'BOOLEAN'];
 
 var and_or = ['AND', 'OR'];
 
 var query_dict = {
     'GET': [get_array], 'GET_COMPARABLE': [get_comparable_array],
     'COUNT': [count_array], 'OR': [or_and_array], 'AND': [or_and_array], 'EQUAL': [equal_array,equal_array],
-    'SORT': [sort_array], 'FILTER': [filter_array], 'FILTER_OBJECT': [filter_object_array],
-    'FILTER_COMPARABLE': [filter_comparable_array], 'VAR': [vars], 'COMPARE':[equal_array]
+    'SORT': [order_array,sort_array], 'FILTER': [filter_array], 'FILTER_OBJECT': [conditions_array,filter_object_array],
+    'FILTER_COMPARABLE': [conditions_array,filter_comparable_array], 'VAR': [vars], 'COMPARE':[equal_array],
+    'MIN':[sort_array], 'MAX':[sort_array]
 };
 
 var get_arg = ['OBJETIVO:', 'HOJA:', 'Y: ', 'X: ' ];
 var var_arg = ['VALOR: '];
 var list_arg = ['ARGUMENTOS:   ['];
 var equal_arg = ['ARG1:   [', 'ARG2:   ['];
+var sort_arg = ['ORDENAR:   [', 'ARGUMENTOS:   ['];
+var filter_arg = ['FILTRO:   [', 'ARGUMENTOS:   ['];
 
 
 var argument_dict = {
-    'GET_DOUBLE': get_arg, 'GET_BOOLEAN': get_arg, 'GET_FORMULA': get_arg,
-    'GET_STRING': get_arg, 'GET_OBJECT': get_arg, 'DOUBLE': var_arg,
+    'GET_NUMERIC': get_arg, 'GET_BOOLEAN': get_arg, 'GET_FORMULA': get_arg,
+    'GET_STRING': get_arg, 'GET_OBJECT': get_arg, 'NUMERIC': var_arg,
     'STRING': var_arg, 'BOOLEAN': var_arg, 'CONDITION_EQUAL': var_arg,
-    'CONDITION_NOT_EQUAL': var_arg, 'COUNT': list_arg, 'SORT': list_arg,
-    'OR': list_arg, 'AND': list_arg, 'FILTER_COMPARABLE': list_arg,
-    'FILTER_OBJECT': list_arg, 'EQUAL': equal_arg
+    'CONDITION_NOT_EQUAL': var_arg, 'COUNT': list_arg, 'SORT': sort_arg,
+    'OR': list_arg, 'AND': list_arg, 'FILTER_COMPARABLE': filter_arg,
+    'FILTER_OBJECT': filter_arg, 'EQUAL': equal_arg, 'MIN': list_arg, 'MAX': list_arg
 };

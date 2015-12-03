@@ -106,7 +106,7 @@
                 </div>
             </div>
         </div>
-        <form>
+        <form id="form" action="/server_client/get_parsed_query/" method="get">
             <div id="seccion-lab">
                 <br>
                 <label for="section_select">Elija una sección:</label>
@@ -117,15 +117,17 @@
                 {{ query_form.query_name }}
                 <br>
             </div>
-            <label for="id_query_body">Construya su consulta:</label>
+            <div id="start">
+                <label for="id_query_body">Construya su consulta:</label>
+                <br>
+                {{ query_form.query_body }}
+                <br>
+                <!--<label for="subquery_body">Construya su consulta:</label>-->
+                <div id="div_0-0"></div>
+            </div>
             <br>
-            {{ query_form.query_body }}
             <br>
-            <!--<label for="subquery_body">Construya su consulta:</label>-->
-            <div id="subquery_body"></div>
-            <br>
-            <br>
-            <button type="submit" class="btn btn-primary">Realizar consulta</button>
+            <button type="submit" class="btn btn-primary" onclick="parseQuery();return false">Realizar consulta</button>
         </form>
 
     </div>
@@ -146,7 +148,9 @@
 <!-- CORE JQUERY SCRIPTS -->
 <script src="{% static 'LabControl/js/jquery-2.1.4.min.js' %}"></script>
 <script src="{% static 'LabControl/js/query_dicts.js' %}"></script>
+<script src="{% static 'LabControl/js/utils.js' %}"></script>
 <script src="{% static 'LabControl/js/query_execution.js' %}"></script>
+<script src="{% static 'LabControl/js/query_parser.js' %}"></script>
 <script src="{% static 'LabControl/js/jquery-ui.min.js' %}"></script>
 <!-- BOOTSTRAP SCRIPTS  -->
 <script src="{% static 'LabControl/js/bootstrap.js' %}"></script>

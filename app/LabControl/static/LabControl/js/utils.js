@@ -7,7 +7,7 @@ $(document).ready(function() {
 
 
 function loadResults(name, seccion){
-    form = $('#form');
+    var form = $('#form');
     AddParameter(form, "name", name);
     AddParameter(form, "seccion", seccion);
 
