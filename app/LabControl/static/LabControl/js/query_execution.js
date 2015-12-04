@@ -4,10 +4,10 @@
 $('#document').ready(function() {
     query_select = $('#0-0');
     addDefaultOption(query_select);
-    for(i = 0; i<options.length;i++){
+    for(i = 0; i<server_options.length;i++){
         query_select.append($('<option>',{
-            value: options[i],
-            text: options[i]
+            value: server_options[i],
+            text: server_options[i]
         }));
     }
     $.fn.exists = function () {
@@ -58,7 +58,8 @@ function loadQueryArguments(){
 
     div_sub_query = $('#div_0-0');
     refreshDiv(div_sub_query);
-    if(select_value == 'GET'){
+    if(select_value == 'GET' || select_value == 'SERVER_GET' ||
+        select_value == 'SERVER_FILTER'){
         style="";
         div_sub_query.attr('style', "");
     }
@@ -71,13 +72,14 @@ function loadQueryArguments(){
     div_sub_query.find('select, input, label, br, button').remove();
 
     if(!(select_value in query_dict)){
+        first=0;
         return;
     }
     arguments = argument_dict[select_value];
     next_select = query_dict[select_value];
     for(j=0; j<next_select.length;j++) {
         color = generateColor();
-        arg_div=$('<div style="'+style+'" id="div_arg_'+id_query_select+'-'+j+'" ></div>').appendTo(div_sub_query);
+        arg_div=$('<div style="'+style+'" class="parent_server" id="div_arg_'+id_query_select+'-'+j+'" ></div>').appendTo(div_sub_query);
         addSelectArgument(arg_div,arguments,j,0, color,0);
         addCloseArgument(arg_div,arguments,j,0, color,0);
         addSelect(arg_div, next_select[j],j,0,0);
@@ -89,6 +91,7 @@ function loadQueryArguments(){
 function deleteEntry(id){
     $('#'+id).remove();
     $('#but_'+id).remove();
+    $('#div_'+id).remove();
     $('br').remove("."+id);
 }
 
@@ -111,10 +114,13 @@ function loadSubQueryOptions(id){
     div_sub_query = $('#div_0-0');
     selected_sub_query = $('#'+id);
     var style = "padding-left: 40px;";
-
+    var first = false;
     div = $('#div_'+id);
     refreshDiv(div);
-    $('#but_'+id).remove();
+    //$('#but_'+id).remove();
+    if((selected_sub_query.val()=='AND' || selected_sub_query.val()=='OR') && $('#but_'+id).exists()){
+         selected_sub_query = $('#but_'+id);
+    }
     div.remove();
 
     if(selected_sub_query.val()=='AND|OR'){
@@ -122,17 +128,28 @@ function loadSubQueryOptions(id){
         return
     }
 
+    class_par="";
+    if($('#div_arg_'+id).attr('class')=='parent_server'){
+        if(selected_sub_query.val()=='GET' || selected_sub_query.val()=='GET_COMPARABLE' ||
+        selected_sub_query.val()=='FILTER' || selected_sub_query.val()=='SERVER_FILTER' ||
+        selected_sub_query.val()=='SERVER_FILTER_BOOL' || selected_sub_query.val()=='SERVER_FILTER_NUMERIC')
+            class_par='parent_server';
+        else{
+            first=true;
+        }
+    }
 
 
     key = $('#'+id+" option:selected").text();
-    if(!(key in query_dict)){
-        if(key=='ELIJA UNA OPCION')
+    if(!(key in query_dict)) {
+        if (key == 'ELIJA UNA OPCION' || key == 'EQUAL_TRUE' || key=='EQUAL_FALSE') {
             return;
+        }
         return loadSubQueryArguments(id,div_sub_query,parent,pure_id);
     }
     new_div = $('<div style="padding-left:40px;" id="div_'+id+'" ></div>').insertAfter(selected_sub_query);
 
-    if(["GET","GET_COMPARABLE","GET_OBJECT", "FILTER", "AND|OR",'VAR'].indexOf(selected_sub_query.val())>=0){
+    if(["GET","GET_COMPARABLE","GET_OBJECT", "FILTER", "AND|OR",'VAR','SERVER_FILTER'].indexOf(selected_sub_query.val())>=0){
         style = "";
         new_div.attr('style', "");
     }
@@ -140,13 +157,24 @@ function loadSubQueryOptions(id){
     arguments = argument_dict[key];
 
     div = new_div;
+    var j;
     for(j=0; j<next_select.length;j++) {
-        arg_div=$('<div style="'+style+'" id="div_arg_'+id_query_select+'-'+(j+parent)+'" ></div>').appendTo(new_div);
+        arg_div=$('<div style="'+style+'" class="'+class_par+'" id="div_arg_'+id_query_select+'-'+(j+parent)+'" ></div>').appendTo(new_div);
         color = generateColor();
         addSelectArgument(arg_div,arguments, j, pure_id,color,parent);
         addCloseArgument(arg_div,arguments,j,pure_id,color,parent);
         addSelect(arg_div, next_select[j],j, parent,pure_id);
 
+    }
+    if(first && ['OR','AND','COUNT','MIN','MAX','GET_NUMERIC',
+            'GET_STRING', 'GET_BOOLEAN', 'GET_OBJECT'].indexOf(selected_sub_query.val())>=0){
+        $('<br id="arg_'+id_query_select+'" class="'+id_query_select+'-'+parent+'" />').appendTo(arg_div);
+        $('<label id="obj_'+id_query_select+'" class="'+id_query_select+'-'+parent+'" for="'+id_query_select+'-'+parent+'" >OBJETIVO:</label>').insertAfter($('#arg_'+id_query_select));
+        new_select= $("<select id='"+id_query_select+
+            '-'+parent+"' name=\"query[]\" class='"+id_query_select+'-'+parent+"' />").insertAfter($('#obj_'+id_query_select));
+            //Se piden los alumnos conectados
+        $("<option />", {value: 'TODOS', text: 'TODOS'}).appendTo(new_select);
+        id_query_select++;
     }
 }
 
@@ -179,21 +207,11 @@ function loadSubQueryArguments(id,div,parent,par_id){
     selected_subquery = $('#'+id);
     new_id= id_query_select;
     arguments = argument_dict[selected_subquery.val()];
+    var i;
     for(i=0; i<arguments.length;i++){
         $('<br id="arg_'+new_id+'" class="'+new_id+'-'+parent+'" />').insertAfter(selected_subquery);
         after = $('#arg_'+new_id);
         $('<br class='+new_id+' />').insertBefore(after);
-
-        if(arguments[i]=='OBJETIVO:'){
-            $('<label id="obj_'+id_query_select+'" class="'+id_query_select+'-'+parent+'" for="'+id_query_select+'-'+parent+'" >' + arguments[i]+'</label>').insertAfter(after);
-            new_select= $("<select id='"+id_query_select+
-               '-'+parent+"' name=\"query[]\" class='"+id_query_select+'-'+parent+"' />")
-             .insertAfter($('#obj_'+id_query_select));
-            //Se piden los alumnos conectados
-            $("<option />", {value: 'TODOS', text: 'TODOS'}).appendTo(new_select);
-            id_query_select++;
-            continue;
-        }
 
         $('<label class="'+id_query_select+'-'+parent+'" for="'+id_query_select+'-'+parent+'" >' + arguments[i]+'</label>'+
             '<input type="text" id="'+id_query_select+'-'+parent+'" class="'+id_query_select+
@@ -201,6 +219,18 @@ function loadSubQueryArguments(id,div,parent,par_id){
         id_query_select++;
 
     }
+    if($('#div_arg_'+id).attr('class')=='parent_server' && ['OR','AND','COUNT','MIN','MAX','GET_NUMERIC',
+            'GET_STRING', 'GET_BOOLEAN', 'GET_OBJECT'].indexOf(selected_sub_query.val())>=0){
+        $('<br id="arg_'+id_query_select+'" class="'+new_id+'-'+parent+'" />').insertAfter($('#'+(new_id)+'-'+parent));
+        $('<label id="obj_'+id_query_select+'" class="'+id_query_select+'-'+parent+
+            '" for="'+id_query_select+'-'+parent+'" >OBJETIVO:</label>').insertAfter($('#arg_'+id_query_select));
+        new_select= $("<select id='"+id_query_select+
+            '-'+parent+"' name=\"query[]\" class='"+id_query_select+'-'+parent+"' />").insertAfter($('#obj_'+id_query_select));
+            //Se piden los alumnos conectados
+        $("<option />", {value: 'TODOS', text: 'TODOS'}).appendTo(new_select);
+
+        id_query_select++;
+        }
 }
 
 function refreshDiv(div){
