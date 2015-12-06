@@ -52,15 +52,24 @@ def _get_client(query, client_dict,clients):
 
     return
 
-def _assign_query_to_client(query, client_dict):
-    client = _get_client_name(query)
-    if client in client_dict:
-        client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+def _assign_query_to_client(client, clients,client_dict,new_query):
+    if client=='all':
+        for ip in clients:
+            client_dict[ip].append(new_query)
+    elif type(client) is list:
+        for c in client:
+            client_dict[c].append(new_query)
+    else:
+        client_dict[client].append(new_query)
+    #client = _get_client_name(query)
+    #if client in client_dict:
+    #    client_dict[_get_client_name(query)].append(_format_query_to_client(query))
 
 def _vals_client(query,client_dict,clients):
-    if query['side'][0:6]=='client':
-        _assign_query_to_client(query,client_dict)
-        #client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+    if 'for' in query:
+        r = dict(query)
+        del r['for']
+        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(query))
     else:
         if not type(query['vals']) is list:
             return _recursive_get_client_side_query(query['vals'], client_dict,clients)
@@ -69,10 +78,10 @@ def _vals_client(query,client_dict,clients):
 
 
 def _compare_client(query, client_dict,clients):
-
-    if query['side'][0:6]=='client':
-        _assign_query_to_client(query,client_dict)
-        #client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+    if 'for' in query:
+        r = dict(query)
+        del r['for']
+        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(query))
     else:
         _recursive_get_client_side_query(query['arg1'],client_dict,clients)
         _recursive_get_client_side_query(query['arg2'],client_dict,clients)
@@ -82,48 +91,48 @@ def _set_alarm_client(query, client_dict,clients):
     _recursive_get_client_side_query(query['query'],client_dict,clients)
 
 
-def _get_client_name(query):
-    if not type(query) is dict:
-        return
-    try:
-        method = query['method']
-        options ={
-            'get': _get_name,
-            'compare': _compare_name,
-            'logic': _vals_name,
-            'count': _vals_name,
-            'sort': _vals_name,
-            'min': _vals_name,
-            'max': _vals_name,
-            'for': _for_operation_name,
-            'filter': _vals_name
-        }
-        return options[method](query)
-    except KeyError as e:
-        logger.exception(Exception('Invalid query'))
-
-def _get_name(query):
-    return query['for']
-
-
-def _compare_name(query):
-    name = _get_client_name(query['arg1'])
-    if name is None:
-        name = _get_client_name(query['arg2'])
-    return name
-
-
-def _vals_name(query):
-    if not type(query['vals']) is list:
-        return _get_client_name(query['vals'])
-
-    for e in query['vals']:
-        name = _get_client_name(e)
-        if not name is None:
-            return name
-
-def _for_operation_name(query):
-    return _get_client_name(query['query'])
+# def _get_client_name(query):
+#     if not type(query) is dict:
+#         return
+#     try:
+#         method = query['method']
+#         options ={
+#             'get': _get_name,
+#             'compare': _compare_name,
+#             'logic': _vals_name,
+#             'count': _vals_name,
+#             'sort': _vals_name,
+#             'min': _vals_name,
+#             'max': _vals_name,
+#             'for': _for_operation_name,
+#             'filter': _vals_name
+#         }
+#         return options[method](query)
+#     except KeyError as e:
+#         logger.exception(Exception('Invalid query'))
+#
+# def _get_name(query):
+#     return query['for']
+#
+#
+# def _compare_name(query):
+#     name = _get_client_name(query['arg1'])
+#     if name is None:
+#         name = _get_client_name(query['arg2'])
+#     return name
+#
+#
+# def _vals_name(query):
+#     if not type(query['vals']) is list:
+#         return _get_client_name(query['vals'])
+#
+#     for e in query['vals']:
+#         name = _get_client_name(e)
+#         if not name is None:
+#             return name
+#
+# def _for_operation_name(query):
+#     return _get_client_name(query['query'])
 
 #---------------------------------------------------------------------
 
@@ -181,6 +190,7 @@ def _get_query_client(query):
 
 
 def _compare_query_client(query):
+    print(query['arg1'])
     if not type(query['arg1']) is list:
         arg1 = _format_query_to_client(query['arg1'])
     else:
