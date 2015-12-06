@@ -37,10 +37,12 @@ def _get_client(query, client_dict,clients):
     client = query['for']
     new_query = _format_query_to_client({'id': query['id'],
                                         'method': 'get',
-                                        'type': query['type'],
                                         'sheet': query['sheet'],
                                         'x': query['x'],
                                         'y': query['y']})
+
+    if 'type' in query:
+        new_query['type'] = query['type']
     if client=='all':
         for ip in clients:
             client_dict[ip].append(new_query)
@@ -69,7 +71,7 @@ def _vals_client(query,client_dict,clients):
     if 'for' in query:
         r = dict(query)
         del r['for']
-        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(query))
+        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(r))
     else:
         if not type(query['vals']) is list:
             return _recursive_get_client_side_query(query['vals'], client_dict,clients)
@@ -81,7 +83,7 @@ def _compare_client(query, client_dict,clients):
     if 'for' in query:
         r = dict(query)
         del r['for']
-        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(query))
+        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(r))
     else:
         _recursive_get_client_side_query(query['arg1'],client_dict,clients)
         _recursive_get_client_side_query(query['arg2'],client_dict,clients)
@@ -180,17 +182,17 @@ def _filter_query_client(query):
             'vals': vals}
 
 def _get_query_client(query):
-
-    return {'id': query['id'],
+    new_query = {'id': query['id'],
             'method': 'get',
-            'type': query['type'],
             'sheet': _format_query_to_client(query['sheet']),
             'x': query['x'],
             'y': query['y']}
+    if 'type' in query:
+        new_query['type']=query['type']
+    return new_query
 
 
 def _compare_query_client(query):
-    print(query['arg1'])
     if not type(query['arg1']) is list:
         arg1 = _format_query_to_client(query['arg1'])
     else:

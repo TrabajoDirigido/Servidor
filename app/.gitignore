@@ -45,5 +45,5 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 
-/Hitmap/settings.py
+/ServerClient/settings.py
 *.sqlite3
