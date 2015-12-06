@@ -27,7 +27,8 @@ def parse_query(query,id,clients): #debe retornar el id
         }
         return options[method](query,id,clients)
     except KeyError as e:
-        print(e)
+        if 'type'in query:
+            return (query, id)
         logger.error(Exception('Invalid Query'))
 
 
@@ -37,7 +38,8 @@ def _filter(query, id, clients):
                 'method': 'filter',
                 'vals': vals,
                 'AS': query['AS'] if 'AS' in query else 'filter'+str(id),
-                'filter': query['filter']}
+                'type': query['type'],
+                'var': query['var']}
     if 'for' in query:
         new_query['for']=query['for']
     return new_query, new_id
@@ -59,7 +61,6 @@ def _get(query,id,clients):
     return new_query, id+1
 
 def _parse_args(query,id,clients):
-    print(query)
     if type(query) is list:
         res = []
         new_id = id

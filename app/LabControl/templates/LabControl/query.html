@@ -9,7 +9,6 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <strong>consultas a: </strong>info@yourdomain.com
                 &nbsp;&nbsp;
             </div>
 
@@ -26,7 +25,7 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/lab_control/home">
-                <h2 style="color:#faebd7">Control de    laboratorio</h2>
+                <h2 style="color:#faebd7">Laboratory    Control</h2>
                 <br>
             </a>
 
@@ -73,10 +72,10 @@
             <div class="col-md-12">
                 <div class="navbar-collapse collapse ">
                     <ul id="menu-top" class="nav navbar-nav navbar-right">
-                        <li><a href="/lab_control/home/">Resumen</a></li>
-                        <li><a href="/lab_control/add_lab/">Agregar laboratorio</a></li>
-                        <li><a class="menu-top-active" href=".">Realizar consulta</a></li>
-                        <li><a href="/lab_control/results/">Resultados</a></li>
+                        <li><a href="/lab_control/home/">Home</a></li>
+                        <li><a href="/lab_control/add_lab/">Add Laboratory</a></li>
+                        <li><a class="menu-top-active" href=".">Build Query</a></li>
+                        <li><a href="/lab_control/results/">Results</a></li>
                         <li><a href="/lab_control/teacher_logout/">Logout</a></li>
 
                     </ul>
@@ -94,22 +93,14 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1 class="page-head-line">Consultas</h1>
+                <h1 class="page-head-line">Queries</h1>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12 col-sm-12">
-                <div class="alert alert-warning">
-                    Comandos disponibles: ...
-                    <h4>Ejemplo:</h4>
-                </div>
-            </div>
-        </div>
         <form id="form" action="/server_client/get_parsed_query/" method="get">
             <div id="seccion-lab">
                 <br>
-                <label for="section_select">Elija una sección:</label>
+                <label for="section_select">Pick a Section:</label>
                 {{ query_form.select_seccion }}
                 <br>
                 <div id="lab_div"></div>
@@ -118,7 +109,7 @@
                 <br>
             </div>
             <div id="start">
-                <label for="id_query_body">Construya su consulta:</label>
+                <label for="id_query_body">Build a query:</label>
                 <br>
                 {{ query_form.query_body }}
                 <br>
@@ -127,7 +118,7 @@
             </div>
             <br>
             <br>
-            <button type="submit" class="btn btn-primary" onclick="parseQuery();return false">Realizar consulta</button>
+            <button type="submit" class="btn btn-primary" onclick="parseQuery();return false">Make Query</button>
         </form>
 
     </div>

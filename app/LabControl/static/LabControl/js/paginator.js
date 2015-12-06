@@ -32,7 +32,7 @@ function buildTable(data){
         row += '<td>'+dict.name+'</td>'+
             '<td>'+dict.seccion+'</td>'+
             '<td>'+dict.date+'</td>';
-        row += '<td><a '.concat(click,'style="cursor:pointer" >Resultados </a></td>');
+        row += '<td><a '.concat(click,'style="cursor:pointer" >Results </a></td>');
         row += '</tr>';
         html+=row;
     }

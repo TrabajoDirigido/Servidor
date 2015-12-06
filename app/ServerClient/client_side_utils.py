@@ -30,6 +30,8 @@ def _recursive_get_client_side_query(query, client_dict,clients):
         }
         return options[method](query,client_dict,clients)
     except KeyError as e:
+        if 'type' in query:
+            return
         logger.exception(Exception('Invalid query'))
 
 
@@ -170,21 +172,23 @@ def _format_query_to_client(query):
         }
         return options[method](query)
     except KeyError as e:
+        if 'type' in query:
+            return query
         raise Exception('Invalid query')
 
 
 def _filter_query_client(query):
     vals = _obtain_vals_to_client(query)
-    new_filter = query['filter']
     return {'id': query['id'],
             'method': 'filter',
-            'filter': {'type': new_filter['type'], 'var': _format_query_to_client(new_filter['var'])},
+            'type': query['type'],
+            'var': query['var'],
             'vals': vals}
 
 def _get_query_client(query):
     new_query = {'id': query['id'],
             'method': 'get',
-            'sheet': _format_query_to_client(query['sheet']),
+            'sheet': query['sheet'],
             'x': query['x'],
             'y': query['y']}
     if 'type' in query:
@@ -233,10 +237,6 @@ def _logical_query_client(query):
 
 def _sort_client(query):
     new_query = _vals_query_client(query)
-    if 'des' in query:
-        new_query['des']= {'var': query['des'], 'type': 'bool'}
-    else:
-        new_query['des']={'var': True, 'type': 'bool'}
     return new_query
 
 

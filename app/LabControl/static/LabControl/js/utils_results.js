@@ -4,7 +4,7 @@
 $('#document').ready(function() {
     div = $('#lab_div');
     div.append($('<br>'));
-    div.append($('<label>Laboratorio:</label>'));
+    div.append($('<label>Laboratory:</label>'));
     generate_select_lab();
     add_options_to_select($('#select_lab'),labs);
     $('#section_select option[value='+seccion+']').attr("selected", "selected");

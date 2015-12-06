@@ -53,6 +53,15 @@ def _save_recursive(query,parent,clients, arg1,lab):
         }
         return options[method](query,parent,clients, arg1,lab)
     except KeyError as e:
+        if 'type' in query:
+            my_type = query['type']
+            value = query['var']
+            parent_obj = Query.objects.get(id=parent)
+            parent_obj.remaining_args -= 1
+            arg = Argument(value=value, type=my_type, arg1=arg1, query=parent_obj)
+            arg.save()
+            parent_obj.save()
+            return
         logger.exception(Exception('Invalid query'))
 
 
