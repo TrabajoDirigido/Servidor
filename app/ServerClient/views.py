@@ -76,6 +76,11 @@ def get_parsed_query(request):
     print(parsed_query)
     print(lab)
     print(name)
+
+    # parsed_query = {'method': 'dataChart',
+    #                 'type': 'title',
+    #                 'sheet':{'type':'int', 'var':1},
+    #                 'for':'all'}
     try:
          max_query_id = Query.objects.all().order_by("-id")[0] #Se saca de la base de datos
          id = max_query_id.id+1
@@ -88,7 +93,7 @@ def get_parsed_query(request):
     parsed_query,_ = parse_query(parsed_query,id, my_connected_clients)
     print(parsed_query)
 
-    save_parsed_query_to_database(parsed_query,my_connected_clients,lab)
+    #save_parsed_query_to_database(parsed_query,my_connected_clients,lab)
 
     client_side_query = get_client_side_query(parsed_query,my_connected_clients)
     print(client_side_query)

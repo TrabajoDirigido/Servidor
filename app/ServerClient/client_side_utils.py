@@ -26,13 +26,46 @@ def _recursive_get_client_side_query(query, client_dict,clients):
             'max': _vals_client,
             'for': _vals_client,
             'alarm': _set_alarm_client,
-            'filter': _vals_client
+            'filter': _vals_client,
+            'dataChart': _data_chart_client,
+            'existChart': _exist_chart_client
         }
         return options[method](query,client_dict,clients)
     except KeyError as e:
         if 'type' in query:
             return
         logger.exception(Exception('Invalid query'))
+
+
+def _data_chart_client(query, client_dict,clients):
+    client = query['for']
+    new_query = _format_query_to_client({'id': query['id'],
+                                        'method': 'dataChart',
+                                        'type': query['type'],
+                                        'sheet': query['sheet']})
+    if client=='all':
+        for ip in clients:
+            client_dict[ip].append(new_query)
+    elif type(client) is list:
+        for c in client:
+            client_dict[c].append(new_query)
+    else:
+        client_dict[client].append(new_query)
+
+
+def _exist_chart_client(query, client_dict,clients):
+    client = query['for']
+    new_query = _format_query_to_client({'id': query['id'],
+                                        'method': 'existChart',
+                                        'sheet': query['sheet']})
+    if client=='all':
+        for ip in clients:
+            client_dict[ip].append(new_query)
+    elif type(client) is list:
+        for c in client:
+            client_dict[c].append(new_query)
+    else:
+        client_dict[client].append(new_query)
 
 
 def _get_client(query, client_dict,clients):
@@ -54,7 +87,7 @@ def _get_client(query, client_dict,clients):
     else:
         client_dict[client].append(new_query)
 
-    return
+
 
 def _assign_query_to_client(client, clients,client_dict,new_query):
     if client=='all':
@@ -168,7 +201,9 @@ def _format_query_to_client(query):
             'min': _vals_query_client,
             'max': _vals_query_client,
             'for': _for_operation_query_client,
-            'filter': _filter_query_client
+            'filter': _filter_query_client,
+            'dataChart': _data_chart_query_client,
+            'existChart': _exist_chart_query_client
         }
         return options[method](query)
     except KeyError as e:
@@ -184,6 +219,20 @@ def _filter_query_client(query):
             'type': query['type'],
             'var': query['var'],
             'vals': vals}
+
+def _data_chart_query_client(query):
+    new_query = {'id': query['id'],
+                'method': 'dataChart',
+                'sheet': query['sheet'],
+                'type': query['type']}
+    return new_query
+
+def _exist_chart_query_client(query):
+    new_query = {'id': query['id'],
+                'method': 'existChart',
+                'sheet': query['sheet']
+                 }
+    return new_query
 
 def _get_query_client(query):
     new_query = {'id': query['id'],

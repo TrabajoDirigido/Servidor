@@ -23,13 +23,36 @@ def parse_query(query,id,clients): #debe retornar el id
             'max': _max_operation,
             'for': _for_operation,
             'alarm': _set_alarm,
-            'filter': _filter
+            'filter': _filter,
+            'dataChart': _data_chart,
+            'existChart': _exist_chart
         }
         return options[method](query,id,clients)
     except KeyError as e:
+        print(e)
         if 'type'in query:
             return (query, id)
         logger.error(Exception('Invalid Query'))
+
+
+def _data_chart(query, id, clients):
+    new_query = {'id': id,
+                'method': 'dataChart',
+                'type': query['type'],
+                'AS': query['AS'] if 'AS' in query else 'dataChart'+str(id),
+                'sheet': query['sheet']}
+    if 'for' in query:
+        new_query['for']=query['for']
+    return new_query, id+1
+
+def _exist_chart(query, id, clients):
+    new_query = {'id': id,
+                'method': 'existChart',
+                'sheet': query['sheet'],
+                'AS': query['AS'] if 'AS' in query else 'existChart'+str(id)}
+    if 'for' in query:
+        new_query['for']=query['for']
+    return new_query, id+1
 
 
 def _filter(query, id, clients):
