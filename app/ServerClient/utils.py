@@ -23,21 +23,49 @@ def parse_query(query,id,clients): #debe retornar el id
             'max': _max_operation,
             'for': _for_operation,
             'alarm': _set_alarm,
-            'filter': _filter
+            'filter': _filter,
+            'dataChart': _data_chart,
+            'existChart': _exist_chart
         }
         return options[method](query,id,clients)
     except KeyError as e:
+        print(e)
+        if 'type'in query:
+            return (query, id)
         logger.error(Exception('Invalid Query'))
+
+
+def _data_chart(query, id, clients):
+    new_query = {'id': id,
+                'method': 'dataChart',
+                'type': query['type'],
+                'AS': query['AS'] if 'AS' in query else 'dataChart'+str(id),
+                'sheet': query['sheet']}
+    if 'for' in query:
+        new_query['for']=query['for']
+    return new_query, id+1
+
+def _exist_chart(query, id, clients):
+    new_query = {'id': id,
+                'method': 'existChart',
+                'sheet': query['sheet'],
+                'AS': query['AS'] if 'AS' in query else 'existChart'+str(id)}
+    if 'for' in query:
+        new_query['for']=query['for']
+    return new_query, id+1
 
 
 def _filter(query, id, clients):
     vals, new_id = _vals_operations(query,id,clients)
-    return {'id': id,
-            'method': 'filter',
-            'vals': vals,
-            'AS': query['AS'] if 'AS' in query else 'filter'+str(id),
-            'filter': query['filter'],
-            'side': _get_list_side(vals)}, new_id
+    new_query = {'id': id,
+                'method': 'filter',
+                'vals': vals,
+                'AS': query['AS'] if 'AS' in query else 'filter'+str(id),
+                'type': query['type'],
+                'var': query['var']}
+    if 'for' in query:
+        new_query['for']=query['for']
+    return new_query, new_id
 
 
 
@@ -46,14 +74,12 @@ def _get(query,id,clients):
                  'method': 'get',
                  'x': query['x'],
                  'y': query['y'],
-                 'for': query['for'],
                  'AS': query['AS'] if 'AS' in query else 'get'+str(id),
-                 'type': query['type'],
                  'sheet': query['sheet'] if 'sheet' in query else [1]}
-    if query['for'] == 'all' or type(query['for']) is list :
-        new_query['side'] = 'server'
-    else:
-        new_query['side'] = 'client'+str(query['for'])
+    if 'type' in query:
+        new_query['type']=query['type']
+    if 'for' in query:
+        new_query['for']=query['for']
 
     return new_query, id+1
 
@@ -72,26 +98,21 @@ def _compare(query, id,clients):
     comp_id = id
     arg1, new_id = _parse_args(query['arg1'],id+1,clients)
     arg2, new_id = _parse_args(query['arg2'],new_id,clients)
+    new_query = {'id':comp_id,
+                'method': 'compare',
+                'arg1': arg1,
+                'arg2': arg2,
+                'AS': query['AS'] if 'AS' in query else 'compare'+str(comp_id)}
+    if 'for' in query:
+        new_query['for']=query['for']
 
-    if not type(arg1) is dict and not type(arg2) is dict:
-        side = 'server'
-    elif not type(arg1) is dict:
-        side = arg2['side']
-    else:
-        side = arg1['side']
-
-    return ({'id':comp_id,
-            'method': 'compare',
-            'arg1': arg1,
-            'arg2': arg2,
-            'AS': query['AS'] if 'AS' in query else 'compare'+str(comp_id),
-            'side': side}, new_id)
+    return (new_query, new_id)
 
 
 def _not_empty(query,id,clients):
     return ({'id': id,
              'method': 'not_empty',
-             'side': 'client',
+             'for': 'all',
              'AS': query['AS'] if 'AS' in query else 'not_empty'+str(id),
              'x': query['x'],
              'y': query['y']},id+1)
@@ -156,22 +177,25 @@ def _get_list_side(vals):
 
 def _list_value_operation(query,id, method,clients):
     vals, new_id = _vals_operations(query,id,clients)
-    return({'id':id,
-            'method': method,
-            'AS': query['AS'] if 'AS' in query else method+str(id),
-            'side': _get_list_side(vals),
-            'vals': vals}, new_id)
+    new_query = {'id':id,
+                'method': method,
+                'AS': query['AS'] if 'AS' in query else method+str(id),
+                'vals': vals}
+    if 'for' in query:
+        new_query['for']=query['for']
+    return(new_query, new_id)
 
 
 def _logic_methods(query,id,method_type,clients):
     vals, new_id = _vals_operations(query,id,clients)
-
-    return({'id':id,
-            'method': 'logic',
-            'side':_get_list_side(vals),
-            'AS': query['AS'] if 'AS' in query else method_type+str(id),
-            'type': method_type,
-            'vals': vals}, new_id)
+    new_query = {'id':id,
+                'method': 'logic',
+                'AS': query['AS'] if 'AS' in query else method_type+str(id),
+                'type': method_type,
+                'vals': vals}
+    if 'for' in query:
+        new_query['for']=query['for']
+    return(new_query, new_id)
 
 
 def _logic_operation(query,id,clients):
@@ -179,7 +203,6 @@ def _logic_operation(query,id,clients):
 
 
 def _for_operation(query,id,clients):
-    #vals, new_id = _vals_operations(query,id,clients)
     vals = replace_for_value(query['for_value'],query['vals'])
     parsed_query, new_id = parse_query(query['query'], id+1,clients)
 
@@ -187,7 +210,6 @@ def _for_operation(query,id,clients):
             'method':'for',
             'vals':vals,
             'AS': query['AS'] if 'AS' in query else 'for'+str(id),
-            'side':parsed_query['side'],#_get_list_side(vals),
             'query':parsed_query}, new_id)
 
 
@@ -196,7 +218,6 @@ def _set_alarm(query,id,clients):
     return({'id': id,
             'method': 'alarm',
             'query': parsed_query,
-            'side':'server',
             'AS': query['AS'] if 'AS' in query else 'alarm'+str(id),
             'time': query['time']}, new_id)
 

@@ -14,13 +14,13 @@ class LoginForm(forms.Form):
 
 
 class QueryForm(forms.Form):
-    select_seccion = forms.ChoiceField(label="Elija una seccion",
+    select_seccion = forms.ChoiceField(label="Pick a section",
                                        choices=[(v,v) for v in Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()],
                                        widget=forms.Select(attrs={
                                             'id': 'section_select'
                                         }
                                        ))
-    query_name = forms.CharField(label= 'Nombre de la consulta',
+    query_name = forms.CharField(label= 'Query Name',
                                  widget=forms.TextInput(attrs={'class': 'form-control',
                                                              'placeholder': 'Nombra tu query aqui',
                                                              'name': 'query[]',
@@ -33,7 +33,7 @@ class QueryForm(forms.Form):
 
 
 class ResultsForm(forms.Form):
-    select_seccion = forms.ChoiceField(label="Elija una seccion",
+    select_seccion = forms.ChoiceField(label="Pick a section",
                                        choices=[(v,v) for v in Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()],
                                        widget=forms.Select(attrs={
                                             'id': 'section_select'

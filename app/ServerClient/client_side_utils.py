@@ -26,21 +26,23 @@ def _recursive_get_client_side_query(query, client_dict,clients):
             'max': _vals_client,
             'for': _vals_client,
             'alarm': _set_alarm_client,
-            'filter': _vals_client
+            'filter': _vals_client,
+            'dataChart': _data_chart_client,
+            'existChart': _exist_chart_client
         }
         return options[method](query,client_dict,clients)
     except KeyError as e:
+        if 'type' in query:
+            return
         logger.exception(Exception('Invalid query'))
 
 
-def _get_client(query, client_dict,clients):
+def _data_chart_client(query, client_dict,clients):
     client = query['for']
     new_query = _format_query_to_client({'id': query['id'],
-                                        'method': 'get',
+                                        'method': 'dataChart',
                                         'type': query['type'],
-                                        'sheet': query['sheet'],
-                                        'x': query['x'],
-                                        'y': query['y']})
+                                        'sheet': query['sheet']})
     if client=='all':
         for ip in clients:
             client_dict[ip].append(new_query)
@@ -50,17 +52,61 @@ def _get_client(query, client_dict,clients):
     else:
         client_dict[client].append(new_query)
 
-    return
 
-def _assign_query_to_client(query, client_dict):
-    client = _get_client_name(query)
-    if client in client_dict:
-        client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+def _exist_chart_client(query, client_dict,clients):
+    client = query['for']
+    new_query = _format_query_to_client({'id': query['id'],
+                                        'method': 'existChart',
+                                        'sheet': query['sheet']})
+    if client=='all':
+        for ip in clients:
+            client_dict[ip].append(new_query)
+    elif type(client) is list:
+        for c in client:
+            client_dict[c].append(new_query)
+    else:
+        client_dict[client].append(new_query)
+
+
+def _get_client(query, client_dict,clients):
+    client = query['for']
+    new_query = _format_query_to_client({'id': query['id'],
+                                        'method': 'get',
+                                        'sheet': query['sheet'],
+                                        'x': query['x'],
+                                        'y': query['y']})
+
+    if 'type' in query:
+        new_query['type'] = query['type']
+    if client=='all':
+        for ip in clients:
+            client_dict[ip].append(new_query)
+    elif type(client) is list:
+        for c in client:
+            client_dict[c].append(new_query)
+    else:
+        client_dict[client].append(new_query)
+
+
+
+def _assign_query_to_client(client, clients,client_dict,new_query):
+    if client=='all':
+        for ip in clients:
+            client_dict[ip].append(new_query)
+    elif type(client) is list:
+        for c in client:
+            client_dict[c].append(new_query)
+    else:
+        client_dict[client].append(new_query)
+    #client = _get_client_name(query)
+    #if client in client_dict:
+    #    client_dict[_get_client_name(query)].append(_format_query_to_client(query))
 
 def _vals_client(query,client_dict,clients):
-    if query['side'][0:6]=='client':
-        _assign_query_to_client(query,client_dict)
-        #client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+    if 'for' in query:
+        r = dict(query)
+        del r['for']
+        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(r))
     else:
         if not type(query['vals']) is list:
             return _recursive_get_client_side_query(query['vals'], client_dict,clients)
@@ -69,10 +115,10 @@ def _vals_client(query,client_dict,clients):
 
 
 def _compare_client(query, client_dict,clients):
-
-    if query['side'][0:6]=='client':
-        _assign_query_to_client(query,client_dict)
-        #client_dict[_get_client_name(query)].append(_format_query_to_client(query))
+    if 'for' in query:
+        r = dict(query)
+        del r['for']
+        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(r))
     else:
         _recursive_get_client_side_query(query['arg1'],client_dict,clients)
         _recursive_get_client_side_query(query['arg2'],client_dict,clients)
@@ -82,48 +128,48 @@ def _set_alarm_client(query, client_dict,clients):
     _recursive_get_client_side_query(query['query'],client_dict,clients)
 
 
-def _get_client_name(query):
-    if not type(query) is dict:
-        return
-    try:
-        method = query['method']
-        options ={
-            'get': _get_name,
-            'compare': _compare_name,
-            'logic': _vals_name,
-            'count': _vals_name,
-            'sort': _vals_name,
-            'min': _vals_name,
-            'max': _vals_name,
-            'for': _for_operation_name,
-            'filter': _vals_name
-        }
-        return options[method](query)
-    except KeyError as e:
-        logger.exception(Exception('Invalid query'))
-
-def _get_name(query):
-    return query['for']
-
-
-def _compare_name(query):
-    name = _get_client_name(query['arg1'])
-    if name is None:
-        name = _get_client_name(query['arg2'])
-    return name
-
-
-def _vals_name(query):
-    if not type(query['vals']) is list:
-        return _get_client_name(query['vals'])
-
-    for e in query['vals']:
-        name = _get_client_name(e)
-        if not name is None:
-            return name
-
-def _for_operation_name(query):
-    return _get_client_name(query['query'])
+# def _get_client_name(query):
+#     if not type(query) is dict:
+#         return
+#     try:
+#         method = query['method']
+#         options ={
+#             'get': _get_name,
+#             'compare': _compare_name,
+#             'logic': _vals_name,
+#             'count': _vals_name,
+#             'sort': _vals_name,
+#             'min': _vals_name,
+#             'max': _vals_name,
+#             'for': _for_operation_name,
+#             'filter': _vals_name
+#         }
+#         return options[method](query)
+#     except KeyError as e:
+#         logger.exception(Exception('Invalid query'))
+#
+# def _get_name(query):
+#     return query['for']
+#
+#
+# def _compare_name(query):
+#     name = _get_client_name(query['arg1'])
+#     if name is None:
+#         name = _get_client_name(query['arg2'])
+#     return name
+#
+#
+# def _vals_name(query):
+#     if not type(query['vals']) is list:
+#         return _get_client_name(query['vals'])
+#
+#     for e in query['vals']:
+#         name = _get_client_name(e)
+#         if not name is None:
+#             return name
+#
+# def _for_operation_name(query):
+#     return _get_client_name(query['query'])
 
 #---------------------------------------------------------------------
 
@@ -155,29 +201,48 @@ def _format_query_to_client(query):
             'min': _vals_query_client,
             'max': _vals_query_client,
             'for': _for_operation_query_client,
-            'filter': _filter_query_client
+            'filter': _filter_query_client,
+            'dataChart': _data_chart_query_client,
+            'existChart': _exist_chart_query_client
         }
         return options[method](query)
     except KeyError as e:
+        if 'type' in query:
+            return query
         raise Exception('Invalid query')
 
 
 def _filter_query_client(query):
     vals = _obtain_vals_to_client(query)
-    new_filter = query['filter']
     return {'id': query['id'],
             'method': 'filter',
-            'filter': {'type': new_filter['type'], 'var': _format_query_to_client(new_filter['var'])},
+            'type': query['type'],
+            'var': query['var'],
             'vals': vals}
 
-def _get_query_client(query):
+def _data_chart_query_client(query):
+    new_query = {'id': query['id'],
+                'method': 'dataChart',
+                'sheet': query['sheet'],
+                'type': query['type']}
+    return new_query
 
-    return {'id': query['id'],
+def _exist_chart_query_client(query):
+    new_query = {'id': query['id'],
+                'method': 'existChart',
+                'sheet': query['sheet']
+                 }
+    return new_query
+
+def _get_query_client(query):
+    new_query = {'id': query['id'],
             'method': 'get',
-            'type': query['type'],
-            'sheet': _format_query_to_client(query['sheet']),
+            'sheet': query['sheet'],
             'x': query['x'],
             'y': query['y']}
+    if 'type' in query:
+        new_query['type']=query['type']
+    return new_query
 
 
 def _compare_query_client(query):
@@ -221,10 +286,6 @@ def _logical_query_client(query):
 
 def _sort_client(query):
     new_query = _vals_query_client(query)
-    if 'des' in query:
-        new_query['des']= {'var': query['des'], 'type': 'bool'}
-    else:
-        new_query['des']={'var': True, 'type': 'bool'}
     return new_query
 
 

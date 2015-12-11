@@ -9,7 +9,6 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <strong>consultas a: </strong>info@yourdomain.com
                     &nbsp;&nbsp;
                 </div>
 
@@ -26,7 +25,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="/lab_control/home">
-                    <h2 style="color:#faebd7">Control de    laboratorio</h2>
+                    <h2 style="color:#faebd7">Laboratory    Control</h2>
                     <br>
                 </a>
 
@@ -73,10 +72,10 @@
                 <div class="col-md-12">
                     <div class="navbar-collapse collapse ">
                       <ul id="menu-top" class="nav navbar-nav navbar-right">
-                          <li><a href="/lab_control/home/">Resumen</a></li>
-                          <li><a class="menu-top-active" href=".">Agregar laboratorio</a></li>
-                          <li><a href="/lab_control/query/">Realizar consulta</a></li>
-                          <li><a href="/lab_control/results/">Resultados</a></li>
+                          <li><a href="/lab_control/home/">Home</a></li>
+                          <li><a class="menu-top-active" href=".">Add Laboratory</a></li>
+                          <li><a href="/lab_control/query/">Build Query</a></li>
+                          <li><a href="/lab_control/results/">Results</a></li>
                           <li><a href="/lab_control/teacher_logout/">Logout</a></li>
 
                       </ul>
@@ -91,31 +90,31 @@
         <div class="container">
              <div class="row">
                     <div class="col-md-12">
-                        <h1 class="page-head-line">Agregar laboratorio</h1>
+                        <h1 class="page-head-line">Add Laboratory</h1>
                     </div>
               </div>
 
                 {% if invalid_date %}
                     <script type="text/javascript">
-                        alert("Fecha inválida");
+                        alert("Invalid date");
                     </script>
                 {% endif %}
 
                 {% if invalid_section %}
                     <script type="text/javascript">
-                        alert("Sección Inválida");
+                        alert("Invalid Section");
                     </script>
                 {% endif %}
 
                 {% if used_name %}
                     <script type="text/javascript">
-                        alert("Nombre ya usado");
+                        alert("Name already in use");
                     </script>
                 {% endif %}
 
                 {% if success %}
                     <script type="text/javascript">
-                        alert("Laboratorio agregado exitosamente");
+                        alert("Your Laboratory was successfully added");
                     </script>
                 {% endif %}
 
@@ -123,25 +122,25 @@
                 <div class="col-md-12 col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Formulario para agregar laboratorio
+                            Laboratory Form
                         </div>
                         <div class="panel-body">
                             <form method="post" action="/lab_control/add_lab/">
                                 {% csrf_token %}
-                                <label>Nombre:</label>
+                                <label>Name:</label>
                                 <br>
                                 <input type='text' name='lab' placeholder="Nombre del laboratorio" class="form-control">
                                 <br>
-                                <label>Sección:</label>
+                                <label>Section:</label>
                                 <br>
                                 <input type='text' name='seccion' placeholder="Número de la sección" class="form-control">
                                 <br>
-                                <label for="datepicker">Fecha:</label>
+                                <label for="datepicker">Date:</label>
                                 <br>
                                 <input name='date' id="datepicker">
                                 <br>
                                 <br>
-                                <button type="submit" class="btn btn-primary">Agregar Laboratorio</button>
+                                <button type="submit" class="btn btn-primary">Add Laboratory</button>
                             </form>
                         </div>
 

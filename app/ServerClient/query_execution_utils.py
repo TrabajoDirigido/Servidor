@@ -47,9 +47,15 @@ def _execute_compare(query):
 
     for a in args:
         if a.arg1:
-            arg1.append(eval(a.value))
+            try:
+                arg1.append(eval(a.value))
+            except Exception:
+                arg1.append(a.value)
         else:
-            arg2.append(eval(a.value))
+            try:
+                arg2.append(eval(a.value))
+            except Exception:
+                arg2.append(a.value)
 
     if len(arg1) != len(arg2) and len(arg1)!=1 and len(arg2)!=1:
         logger.exception(Exception('Invalid arguments'))
@@ -80,7 +86,11 @@ def _execute_vals_function(query,f,type):
     args = Argument.objects.filter(query=query)
     new_args =[]
     for a in args:
-        new_args.append(eval(a.value))
+        try:
+            new_args.append(eval(a.value))
+        except Exception:
+            new_args.append(a.value)
+
 
     result = f(new_args) #Entrega una lista de resultados (aunque sea uno)
     for r in result:
@@ -116,9 +126,13 @@ def _execute_or(query):
 def _execute_filter(query):
     def _my_filter():
         query_text = eval(query.query)
-        my_filter = query_text['filter']
-        value = my_filter['var']
-        method = my_filter['type']
+        value = query_text['var']['var']
+        type = query_text['var']['type']
+        # value ={'int': int(value),
+        #         'float': float(value),
+        #         'string': str(value),
+        #         'bool': bool(value)}[type]
+        method = query_text['type']
         def _inside_filter(args):
             return list(filter({
                             'equal': lambda compare_value:  value == compare_value,
@@ -144,7 +158,7 @@ def _execute_sort(query):
     query_text = eval(query.query)
     desc = True
     if 'des' in query_text:
-        desc = query_text['des']
+        desc = query_text['des']['var']
     arg1 = Argument.objects.filter(query=query)[0]
     return _execute_vals_function(query, _my_sort(desc), arg1.type)
 

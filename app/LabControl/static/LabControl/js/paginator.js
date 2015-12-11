@@ -27,11 +27,12 @@ function buildTable(data){
     html = "";
     for(key in data){
         dict = data[key];
+        click = 'onclick="loadResults(\''+dict.name+'\',\''+dict.seccion+'\')"';
         row = '<tr>';
         row += '<td>'+dict.name+'</td>'+
             '<td>'+dict.seccion+'</td>'+
             '<td>'+dict.date+'</td>';
-        row += '<td><a style="cursor:pointer" onclick=loadResults("'+dict.name+'","'+dict.seccion+'")>Resultados </a></td>';
+        row += '<td><a '.concat(click,'style="cursor:pointer" >Results </a></td>');
         row += '</tr>';
         html+=row;
     }
