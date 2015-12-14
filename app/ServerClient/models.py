@@ -11,6 +11,10 @@ class Lab(models.Model):
     seccion = models.TextField()
     date = models.DateField(default=str(datetime.date.today()))
 
+class SubQuery(models.Model):
+    name = models.CharField(max_length=250)
+    json = models.TextField()
+    type = models.CharField(max_length=250)
 
 class Query(models.Model):
     id = models.IntegerField(primary_key=True)

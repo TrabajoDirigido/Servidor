@@ -67,7 +67,12 @@ def unregister(request):
         return HttpResponse(status=500)
 
 
+def get_connected_students(request):
+    clients = {}
+    for client in ClientInfo.objects.all():
+        clients[client.address]=client.names
 
+    return JsonResponse(clients)
 
 def get_parsed_query(request):
     lab = request.GET['lab']
@@ -76,11 +81,6 @@ def get_parsed_query(request):
     print(parsed_query)
     print(lab)
     print(name)
-
-    # parsed_query = {'method': 'dataChart',
-    #                 'type': 'title',
-    #                 'sheet':{'type':'int', 'var':1},
-    #                 'for':'all'}
     try:
          max_query_id = Query.objects.all().order_by("-id")[0] #Se saca de la base de datos
          id = max_query_id.id+1
@@ -94,7 +94,6 @@ def get_parsed_query(request):
     print(parsed_query)
 
     #save_parsed_query_to_database(parsed_query,my_connected_clients,lab)
-
     client_side_query = get_client_side_query(parsed_query,my_connected_clients)
     print(client_side_query)
     # for c in client_side_query:
@@ -106,7 +105,6 @@ def get_parsed_query(request):
 
 @csrf_exempt
 def receive_client_response(request):
-    #cargo json
     response = json.loads(request.body.decode('UTF-8'))
     origin = response['origin'] #ip del cliente
 

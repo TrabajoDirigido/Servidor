@@ -10,4 +10,5 @@ urlpatterns = patterns('',
                        url(r'^unregister/', views.unregister, name='unregister'),
                        url(r'^get_parsed_query/', views.get_parsed_query, name='get_parsed_query'),
                        url(r'^receive_client_response/', views.receive_client_response, name='receive_client_response'),
+                       url(r'^get_connected_students/', views.get_connected_students, name='get_connected_students')
                        )

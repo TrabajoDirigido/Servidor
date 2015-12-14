@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response,render
 from .forms import *
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from ServerClient.models import Lab, Result, Query
+from ServerClient.models import Lab, Result, Query, SubQuery
 import re
 from django.core.paginator import Paginator
 import json
@@ -45,6 +45,19 @@ def query(request):
     labs = {e.id:e.lab for e in labs }
     return render_to_response('LabControl/query.html', {'query_form': query_form,
                                                         'labs':labs})
+
+
+@login_required()
+def sub_query(request):
+    query_form = QueryForm()
+    labs = Lab.objects.filter(seccion=min(
+        Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()
+    )).order_by('id')
+    labs = {e.id:e.lab for e in labs }
+    return render_to_response('LabControl/sub-query.html', {'query_form': query_form,
+                                                        'labs':labs})
+
+
 
 @login_required()
 def add_lab(request):
@@ -175,3 +188,41 @@ def add_Teacher(request):
     user = User.objects.create_user('profesor', '', 'profesor')
     user.save()
     return HttpResponse(200)
+
+@login_required()
+def create_sub_query(request):
+    name = request.POST['name']
+    type = request.POST['type']
+    query = json.loads(request.POST['query'])
+
+    try:
+        SubQuery.objects.get(name=name)
+        return HttpResponse(content="SubQuery Already Exists", status=401)
+    except SubQuery.DoesNotExist as e:
+        try:
+            SubQuery(name=name, json=query, type=type).save()
+            return HttpResponse(status=200)
+        except Exception as e:
+            return HttpResponse('SubQuery creation failed',status=501)
+
+
+@login_required()
+def get_all_subquery_names(request):
+    names = {}
+    i=1
+    for sub_query in SubQuery.objects.all():
+        i+=1
+        names[i]=sub_query.name
+
+    return JsonResponse(names)
+
+
+@login_required()
+def get_all_subquery(request):
+    result = {}
+
+    for sub_query in SubQuery.objects.all():
+        result[sub_query.name]={'type': sub_query.type,
+                                'query': sub_query.json}
+
+    return JsonResponse(result)

@@ -75,6 +75,7 @@
                         <li><a href="/lab_control/home/">Home</a></li>
                         <li><a href="/lab_control/add_lab/">Add Laboratory</a></li>
                         <li><a class="menu-top-active" href=".">Build Query</a></li>
+                        <li><a href="/lab_control/sub_query/">Build Sub-Query</a></li>
                         <li><a href="/lab_control/results/">Results</a></li>
                         <li><a href="/lab_control/teacher_logout/">Logout</a></li>
 
@@ -93,25 +94,14 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1 class="page-head-line">Queries</h1>
+                <h1 class="page-head-line">Build Queries</h1>
             </div>
         </div>
 
         <form id="form" action="/server_client/get_parsed_query/" method="get">
         </form>
-            <div class="row" id="seccion-lab">
-                <br>
-                <label for="section_select">Pick a Section:</label>
-                {{ query_form.select_seccion }}
-                <br>
-                <div id="lab_div"></div>
-                <br>
-                {{ query_form.query_name }}
-                <br>
-            </div>
             <div class="row">
-                <div id="blocklyDiv" style="height: 480px; max-width: 1200px;"></div>
-
+                <div id="blocklyDiv" style="height: 600px; max-width: 1200px;"></div>
                 <xml id="toolbox" style="display: none">
                     <category name="Variables" colour="20">
                         <block type="math_number"></block>
@@ -160,17 +150,26 @@
                 <xml id="startBlocks" style="display: none">
                 </xml>
             </div>
+        <div class="row" id="seccion-lab">
+                <br>
+                <label for="section_select">Pick a Section:</label>
+                {{ query_form.select_seccion }}
+                <br>
+                <div id="lab_div"></div>
+                <br>
+                {{ query_form.query_name }}
+                <br>
+            </div>
+        <!--
             <div id="start">
                 <label for="id_query_body">Build a query:</label>
                 <br>
                 {{ query_form.query_body }}
                 <br>
-                <!--<label for="subquery_body">Construya su consulta:</label>-->
+                <!--<label for="subquery_body">Construya su consulta:</label>
                 <div id="div_0-0"></div>
-            </div>
-            <br>
-            <br>
-            <button type="submit" class="btn btn-primary" onclick="parseQuery();return false">Make Query</button>
+            </div> -->
+            <button type="submit" class="btn btn-primary" onclick="get_all_subqueries_name();return false">Run Query</button>
 
 
     </div>
@@ -205,6 +204,7 @@
 <script src="{% static 'LabControl/js/logic_list.js' %}"></script>
 <script src="{% static 'LabControl/js/var_list.js' %}"></script>
 <script src="{% static 'LabControl/js/generator.js' %}"></script>
+<script src="{% static 'LabControl/js/sub_query.js' %}"></script>
 <script>
     var workspace = Blockly.inject('blocklyDiv',
             {media: "{% static 'LabControl/google-blockly/media/' %}",
