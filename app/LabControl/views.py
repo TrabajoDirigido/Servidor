@@ -39,9 +39,13 @@ def home(request):
 @login_required()
 def query(request):
     query_form = QueryForm()
-    labs = Lab.objects.filter(seccion=min(
-        Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()
-    )).order_by('id')
+    try:
+        labs = Lab.objects.filter(seccion=min(
+            Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()
+        )).order_by('id')
+        labs = {e.id:e.lab for e in labs }
+    except Exception as e:
+        labs = {}
     labs = {e.id:e.lab for e in labs }
     return render_to_response('LabControl/query.html', {'query_form': query_form,
                                                         'labs':labs})
@@ -50,10 +54,13 @@ def query(request):
 @login_required()
 def sub_query(request):
     query_form = QueryForm()
-    labs = Lab.objects.filter(seccion=min(
-        Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()
-    )).order_by('id')
-    labs = {e.id:e.lab for e in labs }
+    try:
+        labs = Lab.objects.filter(seccion=min(
+            Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()
+        )).order_by('id')
+        labs = {e.id:e.lab for e in labs }
+    except Exception as e:
+        labs = {}
     return render_to_response('LabControl/sub-query.html', {'query_form': query_form,
                                                         'labs':labs})
 
@@ -97,8 +104,14 @@ def add_lab(request):
 
 @login_required()
 def results(request):
-    name = Lab.objects.all().order_by('id')[0].id
-    seccion = Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()[0]
+    try:
+        name = Lab.objects.all().order_by('id')[0].id
+    except Exception as e:
+        name =""
+    try:
+        seccion = Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()[0]
+    except Exception as e:
+        seccion=""
     if request.GET:
         name = request.GET['name']
         seccion = request.GET['seccion']
