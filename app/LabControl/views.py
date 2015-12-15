@@ -107,7 +107,7 @@ def results(request):
     try:
         name = Lab.objects.all().order_by('id')[0].id
     except Exception as e:
-        name =""
+        name =0
     try:
         seccion = Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()[0]
     except Exception as e:
