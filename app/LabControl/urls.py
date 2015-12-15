@@ -20,4 +20,5 @@ urlpatterns = patterns('',
                        url(r'^create_sub_query/', views.create_sub_query, name='create_sub_query'),
                        url(r'^get_all_subquery_names/', views.get_all_subquery_names, name='get_all_subquery_names'),
                        url(r'^get_all_subquery/', views.get_all_subquery, name='get_all_subquery'),
+                       url(r'^add_teacher/', views.add_Teacher, name='add_teacher'),
                        )
