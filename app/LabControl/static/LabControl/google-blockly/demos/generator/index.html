@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Demo: Generating JavaScript</title>
+  <script src="../../blockly_compressed.js"></script>
+  <script src="../../blocks_compressed.js"></script>
+  <script src="../../javascript_compressed.js"></script>
+  <script src="../../msg/js/en.js"></script>
+  <script src="blocks.js"></script>
+  <script src="logic_list.js"></script>
+  <script src="var_list.js"></script>
+  <script src="generator.js"></script>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+  </style>
+</head>
+<body>
+  <p>This is a simple demo of generating code from blocks.</p>
+
+  <p>
+    <button onclick="showCode()">Show Generated JSON</button>
+  </p>
+
+  <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Variables" colour="20">
+      <block type="math_number"></block>
+      <block type="text"></block>
+      <block type="logic_boolean"></block>
+      <block type="var"></block>
+      <block type="null"></block>
+    </category>
+    <category name="Queries" colour="120">
+      <category name="Get">
+          <block type="getdouble"></block>
+          <block type="getformula"></block>
+          <block type="getboolean"></block>
+          <block type="getstring"></block>        
+          <block type="getobject"></block>
+      </category>    
+      <category name="Chart">
+        <block type="existchart"></block>
+        <block type="chartdata"></block>
+      </category>  
+      <category name="Filter">
+        <block type="filterobject"></block>
+        <block type="filtercomparable"></block>
+      </category>
+      <category name="Count">
+        <block type="count"></block>
+      </category>
+      <category name="Equal">
+        <block type="equal"></block>
+      </category>
+      <category name="Sort">
+        <block type="sort"></block>
+      </category>
+      <category name="Logic">
+        <block type="lists_logic"></block>
+        <block type="and"></block>
+        <block type="or"></block>
+      </category>
+      <category name="Min/Max">
+        <block type="min"></block>
+        <block type="max"></block>  
+      </category>
+    </category>
+  
+  </xml>
+
+  <xml id="startBlocks" style="display: none">
+  </xml>
+
+  <script>
+    var workspace = Blockly.inject('blocklyDiv',
+        {media: '../../media/',
+         toolbox: document.getElementById('toolbox')});
+    Blockly.Xml.domToWorkspace(workspace,
+        document.getElementById('startBlocks'));
+
+    function showCode() {
+      // Generate JavaScript code and display it.
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      var code = Blockly.JavaScript.workspaceToCode(workspace);
+      alert(code);
+    }
+  </script>
+
+</body>
+</html>

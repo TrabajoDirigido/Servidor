@@ -22,7 +22,7 @@ class QueryForm(forms.Form):
                                        ))
     query_name = forms.CharField(label= 'Query Name',
                                  widget=forms.TextInput(attrs={'class': 'form-control',
-                                                             'placeholder': 'Nombra tu query aqui',
+                                                             'placeholder': 'Name your query here',
                                                              'name': 'query[]',
                                                              'required': True,
                                                              'autofocus': True}))
