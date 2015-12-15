@@ -121,9 +121,12 @@ def results(request):
     labs = Lab.objects.filter(seccion=seccion).order_by('id')
     labs = {e.id:e.lab for e in labs }
 
-    lab = Lab.objects.get(id=name)
-
-    response, page_number = create_paginator(lab, PAGE_SIZE,1)
+    try:
+        lab = Lab.objects.get(id=name)
+        response, page_number = create_paginator(lab, PAGE_SIZE,1)
+    except Lab.DoesNotExist:
+        response= {}
+        page_number = 1
     return render(request,'LabControl/results.html',{'page_number': page_number,
                                                      'lab': name,
                                                      'seccion': seccion,
