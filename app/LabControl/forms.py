@@ -33,8 +33,12 @@ class QueryForm(forms.Form):
 
 
 class ResultsForm(forms.Form):
+    try:
+        choices = [(v,v) for v in Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()]
+    except Exception as e:
+        choices = []
     select_seccion = forms.ChoiceField(label="Pick a section",
-                                       choices=[(v,v) for v in Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()],
+                                       choices= choices,
                                        widget=forms.Select(attrs={
                                             'id': 'section_select'
                                         }

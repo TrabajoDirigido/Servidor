@@ -111,7 +111,7 @@ def results(request):
     try:
         seccion = Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()[0]
     except Exception as e:
-        seccion=""
+        seccion=0
     if request.GET:
         name = request.GET['name']
         seccion = request.GET['seccion']
