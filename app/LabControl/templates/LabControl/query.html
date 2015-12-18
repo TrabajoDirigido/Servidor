@@ -104,48 +104,57 @@
                 <div id="blocklyDiv" style="height: 600px; max-width: 1200px;"></div>
                 <xml id="toolbox" style="display: none">
                     <category name="Variables" colour="20">
-                        <block type="math_number"></block>
-                        <block type="text"></block>
-                        <block type="logic_boolean"></block>
-                        <block type="var"></block>
-                        <block type="null"></block>
+                      <block type="math_number"></block>
+                      <block type="text"></block>
+                      <block type="logic_boolean"></block>
+                      <block type="var"></block>
+                      <block type="null"></block>
                     </category>
-                    <category name="Queries" colour="120">
-                        <category name="Get">
-                            <block type="getdouble"></block>
-                            <block type="getformula"></block>
-                            <block type="getboolean"></block>
-                            <block type="getstring"></block>
-                            <block type="getobject"></block>
-                        </category>
-                        <category name="Chart">
-                            <block type="existchart"></block>
-                            <block type="chartdata"></block>
-                        </category>
-                        <category name="Filter">
-                            <block type="filterobject"></block>
-                            <block type="filtercomparable"></block>
-                        </category>
-                        <category name="Count">
-                            <block type="count"></block>
-                        </category>
-                        <category name="Equal">
-                            <block type="equal"></block>
-                        </category>
-                        <category name="Sort">
-                            <block type="sort"></block>
-                        </category>
-                        <category name="Logic">
-                            <block type="lists_logic"></block>
-                            <block type="and"></block>
-                            <block type="or"></block>
-                        </category>
-                        <category name="Min/Max">
-                            <block type="min"></block>
-                            <block type="max"></block>
-                        </category>
+                    <category name="Client Queries" colour="120">
+                      <category name="Get">
+                          <block type="get"></block>
+                      </category>
+                      <category name="Chart">
+                        <block type="existchart"></block>
+                        <block type="chartdata"></block>
+                      </category>
+                      <category name="Filter">
+                        <block type="filterobject"></block>
+                        <block type="filtercomparable"></block>
+                      </category>
+                      <category name="Count">
+                        <block type="count"></block>
+                      </category>
+                      <category name="Equal">
+                        <block type="equal"></block>
+                      </category>
+                      <category name="Sort">
+                        <block type="sort"></block>
+                      </category>
+                      <category name="Logic">
+                        <block type="lists_logic"></block>
+                        <block type="and"></block>
+                        <block type="or"></block>
+                      </category>
+                      <category name="Min/Max">
+                        <block type="min"></block>
+                        <block type="max"></block>
+                      </category>
                     </category>
-
+                    <category name="Server Queries" colour="230">
+                      <block type="serverget"></block>
+                      <block type="serverfilter"></block>
+                      <block type="servercount"></block>
+                      <block type="servermin"></block>
+                      <block type="servermax"></block>
+                    </category>
+                    <category name="Students" colour="65">
+                      <block type="student"></block>
+                      <block type="studentlist"></block>
+                    </category>
+                    <category name="Subquery" colour="330">
+                      <block type="subquery"></block>
+                    </category>
                 </xml>
                 <xml id="startBlocks" style="display: none">
                 </xml>
@@ -196,18 +205,30 @@
 <script src="{% static 'LabControl/js/jquery-ui.min.js' %}"></script>
 <!-- BOOTSTRAP SCRIPTS  -->
 <script src="{% static 'LabControl/js/bootstrap.js' %}"></script>
-<script src="{% static 'LabControl/google-blockly/blockly_compressed.js' %}"></script>
-<script src="{% static 'LabControl/google-blockly/blocks_compressed.js' %}"></script>
-<script src="{% static 'LabControl/google-blockly/javascript_compressed.js' %}"></script>
-<script src="{% static 'LabControl/google-blockly/msg/js/en.js' %}"></script>
-<script src="{% static 'LabControl/js/blocks.js' %}"></script>
-<script src="{% static 'LabControl/js/logic_list.js' %}"></script>
-<script src="{% static 'LabControl/js/var_list.js' %}"></script>
-<script src="{% static 'LabControl/js/generator.js' %}"></script>
-<script src="{% static 'LabControl/js/sub_query.js' %}"></script>
+
+<!-- Blockly -->
+<script src="{% static 'LabControl/blockly/google-blockly/blockly_compressed.js' %}"></script>
+<script src="{% static 'LabControl/blockly/google-blockly/blocks_compressed.js' %}"></script>
+<script src="{% static 'LabControl/blockly/google-blockly/javascript_compressed.js' %}"></script>
+<script src="{% static 'LabControl/blockly/google-blockly/msg/js/en.js' %}"></script>
+
+<script src="{% static 'LabControl/blockly/subqueries.js' %}"></script>
+
+<script src="{% static 'LabControl/blockly/bloques/client_blocks.js' %}"></script>
+<script src="{% static 'LabControl/blockly/bloques/server_blocks.js' %}"></script>
+<script src="{% static 'LabControl/blockly/bloques/subqueries.js' %}"></script>
+<script src="{% static 'LabControl/blockly/bloques/variables.js' %}"></script>
+
+<script src="{% static 'LabControl/blockly/generators/client_blocks.js' %}"></script>
+<script src="{% static 'LabControl/blockly/generators/subqueries.js' %}"></script>
+<script src="{% static 'LabControl/blockly/generators/server_blocks.js' %}"></script>
+<script src="{% static 'LabControl/blockly/generators/variables.js' %}"></script>
+
+
+
 <script>
     var workspace = Blockly.inject('blocklyDiv',
-            {media: "{% static 'LabControl/google-blockly/media/' %}",
+            {media: "{% static 'LabControl/blockly/google-blockly/media/' %}",
                 toolbox: document.getElementById('toolbox')});
     Blockly.Xml.domToWorkspace(workspace,
             document.getElementById('startBlocks'));

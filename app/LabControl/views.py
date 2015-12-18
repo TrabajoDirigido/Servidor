@@ -207,10 +207,10 @@ def add_Teacher(request):
 
 @login_required()
 def create_sub_query(request):
+    print(request)
     name = request.POST['name']
     type = request.POST['type']
     query = json.loads(request.POST['query'])
-
     try:
         SubQuery.objects.get(name=name)
         return HttpResponse(content="SubQuery Already Exists", status=401)

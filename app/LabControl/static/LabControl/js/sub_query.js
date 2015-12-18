@@ -50,7 +50,7 @@ function create_subquery(name, type, query){
         data : {csrfmiddlewaretoken: csrftoken,
                 name: name,
                 type: type,
-                query: JSON.stringify(query)},
+                query: query},
         url: "/lab_control/create_sub_query/"
     })
     .success(function( data ) {
