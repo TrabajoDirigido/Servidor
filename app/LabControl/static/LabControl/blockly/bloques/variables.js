@@ -121,10 +121,6 @@ Blockly.Blocks['lists_logic'] = {
   }
 };
 
-function studentsList(){
-    return [["Juan","Juan"],["Pedro", "Pedro"],["Camila", "Camila"]];
-}
-
 //https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#mky6ot
 Blockly.Blocks['student'] = {
   init: function() {
