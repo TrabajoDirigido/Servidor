@@ -53,9 +53,11 @@ def _set_client(client, client_dict,new_query):
             client_dict[ip].append(new_query)
     elif type(client) is list:
         for c in client:
-            client_dict[c].append(new_query)
+            c = ClientInfo.objects.get(names=c)
+            client_dict[c.address].append(new_query)
     else:
-        client_dict[client].append(new_query)
+        c = ClientInfo.objects.get(names=client)
+        client_dict[c.address].append(new_query)
 
 
 def _exist_chart_client(query, client_dict):

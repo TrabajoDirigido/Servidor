@@ -42,7 +42,6 @@ function get_all_subqueries(){
     })
     .success(function( data ) {
             subqueries = data;
-            console.log(subqueries)
     });
 }
 
