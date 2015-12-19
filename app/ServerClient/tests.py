@@ -44,7 +44,7 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[True])
 
@@ -60,7 +60,7 @@ class ParseQueryTest(TestCase):
         print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[True])
 
@@ -77,7 +77,7 @@ class ParseQueryTest(TestCase):
         print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[False, False])
 
@@ -94,7 +94,7 @@ class ParseQueryTest(TestCase):
         print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[])
 
@@ -108,7 +108,7 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[3])
 
@@ -121,7 +121,7 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[True, False,True])
 
@@ -135,7 +135,7 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[True, False,True])
 
@@ -149,7 +149,7 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[100,46,5,1,-1])
 
@@ -163,7 +163,7 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,[-1,1,5,46,100])
 
@@ -177,7 +177,7 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [r.value for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,['-1'])
 
@@ -190,6 +190,6 @@ class ParseQueryTest(TestCase):
         #print(parsed_query)
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
-        client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
+        client_side_query = get_client_side_query(parsed_query)
         res = [r.value for r in Result.objects.filter(query=Query.objects.get(id=1))]
         self.assertEquals(res,['100'])
