@@ -19,3 +19,13 @@ function getSubqueryCode(name){
 	query = query.split("'").join("\"")
 	return query;
 }
+
+function studentsList(){
+	var list = [];
+
+	var arrayLength = clients.length;
+	for (var i = 0; i < arrayLength; i++) {
+	    list.push([clients[i],clients[i]]);
+	}
+    return list;
+}
