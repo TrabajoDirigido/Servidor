@@ -4,6 +4,7 @@
 
 $('#document').ready(function() {
     get_all_subqueries_name();
+    get_all_subqueries();
 });
 function getCookie(name) {
     var cookieValue = null;
@@ -47,24 +48,6 @@ function get_all_subqueries_name(){
     });
 }
 
-/*function create_subquery(name, type, query){
-    if(names.indexOf(name)!=-1){
-        alert('Name already in use');
-        return;
-    }
-    $.ajax({
-        method: "POST",
-        data : {csrfmiddlewaretoken: csrftoken,
-                name: name,
-                type: type,
-                query: query},
-        url: "/lab_control/create_sub_query/"
-    })
-    .success(function( data ) {
-            get_all_subqueries_name();
-            alert('Succesfully added Sub-Query');
-    });
-}*/
 
 function create_subquery(name,type,query){
     if(names.indexOf(name)!=-1){
