@@ -25,7 +25,7 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/lab_control/home">
-                <h2 style="color:#faebd7">Laboratory    Control</h2>
+                <h2 style="color:#faebd7">Lab    Monitoring</h2>
                 <br>
             </a>
 
@@ -73,7 +73,7 @@
                 <div class="navbar-collapse collapse ">
                     <ul id="menu-top" class="nav navbar-nav navbar-right">
                         <li><a href="/lab_control/home/">Home</a></li>
-                        <li><a href="/lab_control/add_lab/">Add Laboratory</a></li>
+                        <li><a href="/lab_control/add_lab/">Add Lab</a></li>
                         <li><a href="/lab_control/query/">Build Query</a></li>
                         <li><a class="menu-top-active" href=".">Build Sub-Query</a></li>
                         <li><a href="/lab_control/results/">Results</a></li>
@@ -88,9 +88,6 @@
 </section>
 <!-- MENU SECTION END-->
 <div class="content-wrapper">
-    <script type="text/javascript">
-        var labs = {{labs|safe}};
-    </script>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -99,7 +96,7 @@
             </div>
         </div>
 
-        <form id="form" action="/server_client/get_parsed_query/" method="get">
+        <form id="form" action="/lab_control/create_sub_query/" method="post">
         </form>
             <div class="row">
                 <div id="blocklyDiv" style="height: 480px; max-width: 1200px;"></div>

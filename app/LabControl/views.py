@@ -46,23 +46,13 @@ def query(request):
         labs = {e.id:e.lab for e in labs }
     except Exception as e:
         labs = {}
-    labs = {e.id:e.lab for e in labs }
     return render_to_response('LabControl/query.html', {'query_form': query_form,
                                                         'labs':labs})
 
 
 @login_required()
 def sub_query(request):
-    query_form = QueryForm()
-    try:
-        labs = Lab.objects.filter(seccion=min(
-            Lab.objects.order_by('seccion').values_list('seccion',flat=True).distinct()
-        )).order_by('id')
-        labs = {e.id:e.lab for e in labs }
-    except Exception as e:
-        labs = {}
-    return render_to_response('LabControl/sub-query.html', {'query_form': query_form,
-                                                        'labs':labs})
+    return render_to_response('LabControl/sub-query.html')
 
 
 
@@ -207,7 +197,6 @@ def add_Teacher(request):
 
 @login_required()
 def create_sub_query(request):
-    print(request)
     name = request.POST['name']
     type = request.POST['type']
     query = json.loads(request.POST['query'])
@@ -217,20 +206,18 @@ def create_sub_query(request):
     except SubQuery.DoesNotExist as e:
         try:
             SubQuery(name=name, json=query, type=type).save()
-            return HttpResponse(status=200)
+            return sub_query(request)
         except Exception as e:
             return HttpResponse('SubQuery creation failed',status=501)
 
 
 @login_required()
 def get_all_subquery_names(request):
-    names = {}
-    i=1
+    names = []
     for sub_query in SubQuery.objects.all():
-        i+=1
-        names[i]=sub_query.name
+        names.append(sub_query.name)
 
-    return JsonResponse(names)
+    return JsonResponse({'names':names})
 
 
 @login_required()
