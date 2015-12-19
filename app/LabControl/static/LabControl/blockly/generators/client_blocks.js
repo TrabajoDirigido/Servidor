@@ -22,7 +22,7 @@ function getArray(mString){
 
 function createJsonVar(value){
   if(!value){
-    return '{"type":"null"}'
+    throw "Null value";
   }
 
   var res = '{"var":'+value+',';
