@@ -227,8 +227,15 @@
             return;
         }
         var block = blocks[0];
-        var type = block.previousConnection.getCheck()[0];
+        var type = block.previousConnection;
+        if(type == null){
+            alert("Please provide a valid query");
+            return;
+        }
+        type = type.getCheck()[0];
         var name = prompt("Subquery Name:");
+        if(name=="" || name==null)
+            return;
         var code = Blockly.JavaScript.blockToCode(block);
         create_subquery(name,type,code);
     }

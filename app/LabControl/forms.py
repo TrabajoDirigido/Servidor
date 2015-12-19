@@ -24,8 +24,7 @@ class QueryForm(forms.Form):
                                  widget=forms.TextInput(attrs={'class': 'form-control',
                                                              'placeholder': 'Name your query here',
                                                              'name': 'query[]',
-                                                             'required': True,
-                                                             'autofocus': True}))
+                                                             'required': True}))
     query_body = forms.ChoiceField(label= mark_safe(''),
                                    widget=forms.Select(attrs={
                                             'id': '0-0',
