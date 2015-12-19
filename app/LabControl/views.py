@@ -72,9 +72,9 @@ def add_lab(request):
             invalid_section=True
 
         if pattern.match(date):
-            day = date[0:date.index("/")]
+            month = date[0:date.index("/")]
             rest = date[date.index("/")+1:]
-            month = rest[0:rest.index("/")]
+            day = rest[0:rest.index("/")]
             date = date[-4:] + '-' + month + '-' + day
         else:
             invalid_date=True
