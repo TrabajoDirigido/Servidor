@@ -233,6 +233,7 @@
     Blockly.Xml.domToWorkspace(workspace,
             document.getElementById('startBlocks'));
 
+
     function showCode() {
         // Generate JavaScript code and display it.
         Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
@@ -256,6 +257,7 @@
         }
         catch(err) {
             alert("Query with missing inputs");
+            console.log(err.message);
             return;
         }
         //alert(code);
