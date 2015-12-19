@@ -41,7 +41,7 @@ Blockly.Blocks['serverget'] = {
         .appendField(dropdown, "STUDENTS");
     this.setColour(230);
     this.setTooltip('');
-    this.setPreviousStatement(true, "SERVERGET");
+    this.setPreviousStatement(true, "SERVERTOPLEVEL");
     this.setHelpUrl('http://www.example.com/');
   },
 
@@ -92,7 +92,7 @@ Blockly.Blocks['servercount'] = {
         .setCheck("SERVERFILTER")
         .appendField("Filter by");
     this.setInputsInline(false);
-    this.setPreviousStatement(true, "SERVERCOUNT");
+    this.setPreviousStatement(true, "SERVERTOPLEVEL");
     this.setColour(230);
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
@@ -115,7 +115,7 @@ Blockly.Blocks['servermin'] = {
         .appendField("to")
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(dropdown, "STUDENTS");
-    this.setPreviousStatement(true, "SERVERMIN");
+    this.setPreviousStatement(true, "SERVERTOPLEVEL");
     this.setColour(230);
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
@@ -142,7 +142,7 @@ Blockly.Blocks['servermax'] = {
         .appendField("to")
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(dropdown, "STUDENTS");
-    this.setPreviousStatement(true, "SERVERMIN");
+    this.setPreviousStatement(true, "SERVERTOPLEVEL");
     this.setColour(230);
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');

@@ -236,8 +236,30 @@
     function showCode() {
         // Generate JavaScript code and display it.
         Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
-        var code = Blockly.JavaScript.workspaceToCode(workspace);
-        parseQuery(code);
+
+        var blocks = workspace.getTopBlocks();
+
+        if(blocks.length != 1){
+            alert("Please provide one block to build the query");
+            return;
+        }
+        var block = blocks[0];
+        var type = block.previousConnection;
+        if(type == null || !(type.getCheck()[0]=="SERVERTOPLEVEL" || type.getCheck()[0]=="SERVERFILTER")){
+            alert("Please provide a valid top level query");
+            return;
+        }
+
+        var code;
+        try {
+            code = Blockly.JavaScript.workspaceToCode(workspace);
+        }
+        catch(err) {
+            alert("Query with missing inputs");
+            return;
+        }
+        alert(code);
+        //parseQuery(code);
     }
 </script>
 
