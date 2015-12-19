@@ -67,12 +67,6 @@ def unregister(request):
         return HttpResponse(status=500)
 
 
-def get_connected_students(request):
-    clients = {}
-    for client in ClientInfo.objects.all():
-        clients[client.address]=client.names
-
-    return JsonResponse(clients)
 
 def get_parsed_query(request):
     lab = request.GET['lab']
@@ -95,7 +89,7 @@ def get_parsed_query(request):
     # print(parsed_query)
     #
     # #save_parsed_query_to_database(parsed_query,my_connected_clients,lab)
-    # client_side_query = get_client_side_query(parsed_query,my_connected_clients)
+    # client_side_query = get_client_side_query(parsed_query)
     # print(client_side_query)
     # # for c in client_side_query:
     # #     for m in client_side_query[c]:
@@ -123,3 +117,9 @@ def receive_client_response(request):
 
     return HttpResponse(status=200)
 
+def get_all_clients(request):
+    clients =[]
+    for c in ClientInfo.objects.all():
+        clients.append(c.names)
+
+    return JsonResponse({'names': clients})

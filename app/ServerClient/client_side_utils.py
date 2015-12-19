@@ -1,17 +1,18 @@
 __author__ = 'Camila Alvarez'
 import logging
+from .models import ClientInfo
 
 logger = logging.getLogger('error')
 
-def get_client_side_query(query,clients):
+def get_client_side_query(query):
     client_query_dict = {}
-    for c in clients:
-        client_query_dict[c]=[]
-    _recursive_get_client_side_query(query,client_query_dict,clients)
+    for c in ClientInfo.objects.all():
+        client_query_dict[c.address]=[]
+    _recursive_get_client_side_query(query,client_query_dict)
 
     return client_query_dict
 
-def _recursive_get_client_side_query(query, client_dict,clients):
+def _recursive_get_client_side_query(query, client_dict):
     if not type(query) is dict:
         return
     try:
@@ -30,21 +31,25 @@ def _recursive_get_client_side_query(query, client_dict,clients):
             'dataChart': _data_chart_client,
             'existChart': _exist_chart_client
         }
-        return options[method](query,client_dict,clients)
+        return options[method](query,client_dict)
     except KeyError as e:
         if 'type' in query:
             return
         logger.exception(Exception('Invalid query'))
 
 
-def _data_chart_client(query, client_dict,clients):
+def _data_chart_client(query, client_dict):
     client = query['for']
     new_query = _format_query_to_client({'id': query['id'],
                                         'method': 'dataChart',
                                         'type': query['type'],
                                         'sheet': query['sheet']})
+    _set_client(client,client_dict,new_query)
+
+
+def _set_client(client, client_dict,new_query):
     if client=='all':
-        for ip in clients:
+        for ip in ClientInfo.objects.all():
             client_dict[ip].append(new_query)
     elif type(client) is list:
         for c in client:
@@ -53,22 +58,15 @@ def _data_chart_client(query, client_dict,clients):
         client_dict[client].append(new_query)
 
 
-def _exist_chart_client(query, client_dict,clients):
+def _exist_chart_client(query, client_dict):
     client = query['for']
     new_query = _format_query_to_client({'id': query['id'],
                                         'method': 'existChart',
                                         'sheet': query['sheet']})
-    if client=='all':
-        for ip in clients:
-            client_dict[ip].append(new_query)
-    elif type(client) is list:
-        for c in client:
-            client_dict[c].append(new_query)
-    else:
-        client_dict[client].append(new_query)
+    _set_client(client,client_dict,new_query)
 
 
-def _get_client(query, client_dict,clients):
+def _get_client(query, client_dict):
     client = query['for']
     new_query = _format_query_to_client({'id': query['id'],
                                         'method': 'get',
@@ -78,54 +76,34 @@ def _get_client(query, client_dict,clients):
 
     if 'type' in query:
         new_query['type'] = query['type']
-    if client=='all':
-        for ip in clients:
-            client_dict[ip].append(new_query)
-    elif type(client) is list:
-        for c in client:
-            client_dict[c].append(new_query)
-    else:
-        client_dict[client].append(new_query)
+    _set_client(client,client_dict,new_query)
 
 
 
-def _assign_query_to_client(client, clients,client_dict,new_query):
-    if client=='all':
-        for ip in clients:
-            client_dict[ip].append(new_query)
-    elif type(client) is list:
-        for c in client:
-            client_dict[c].append(new_query)
-    else:
-        client_dict[client].append(new_query)
-    #client = _get_client_name(query)
-    #if client in client_dict:
-    #    client_dict[_get_client_name(query)].append(_format_query_to_client(query))
-
-def _vals_client(query,client_dict,clients):
+def _vals_client(query,client_dict):
     if 'for' in query:
         r = dict(query)
         del r['for']
-        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(r))
+        _set_client(query['for'],client_dict, _format_query_to_client(r))
     else:
         if not type(query['vals']) is list:
-            return _recursive_get_client_side_query(query['vals'], client_dict,clients)
+            return _recursive_get_client_side_query(query['vals'], client_dict)
         for e in query['vals']:
-            _recursive_get_client_side_query(e,client_dict,clients)
+            _recursive_get_client_side_query(e,client_dict)
 
 
-def _compare_client(query, client_dict,clients):
+def _compare_client(query, client_dict):
     if 'for' in query:
         r = dict(query)
         del r['for']
-        _assign_query_to_client(query['for'],clients,client_dict, _format_query_to_client(r))
+        _set_client(query['for'],client_dict, _format_query_to_client(r))
     else:
-        _recursive_get_client_side_query(query['arg1'],client_dict,clients)
-        _recursive_get_client_side_query(query['arg2'],client_dict,clients)
+        _recursive_get_client_side_query(query['arg1'],client_dict)
+        _recursive_get_client_side_query(query['arg2'],client_dict)
 
 
-def _set_alarm_client(query, client_dict,clients):
-    _recursive_get_client_side_query(query['query'],client_dict,clients)
+def _set_alarm_client(query, client_dict):
+    _recursive_get_client_side_query(query['query'],client_dict)
 
 
 # def _get_client_name(query):
