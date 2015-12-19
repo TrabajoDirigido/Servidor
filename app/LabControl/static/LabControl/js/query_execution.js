@@ -13,6 +13,14 @@ $('#document').ready(function() {
     $('#section_select option:first-child').attr("selected", "selected");
     $('#id_query_name').val('');
     get_all_subqueries();
+    $.ajax({
+        method: "POST",
+        data : {csrfmiddlewaretoken: csrftoken},
+        url: "/server_client/get_all_clients/"
+    })
+    .success(function( data ) {
+            clients = data.names;
+    });
 });
 
 function getCookie(name) {
@@ -33,6 +41,7 @@ function getCookie(name) {
 
 var csrftoken = getCookie('csrftoken');
 var subqueries;
+var clients;
 
 function get_all_subqueries(){
     $.ajax({

@@ -5,6 +5,15 @@
 $('#document').ready(function() {
     get_all_subqueries_name();
     get_all_subqueries();
+    $.ajax({
+        method: "POST",
+        data : {csrfmiddlewaretoken: csrftoken},
+        url: "/server_client/get_all_clients/"
+    })
+    .success(function( data ) {
+            clients = data.names;
+    });
+
 });
 function getCookie(name) {
     var cookieValue = null;
@@ -25,6 +34,7 @@ function getCookie(name) {
 var csrftoken = getCookie('csrftoken');
 var names;
 var subqueries;
+var clients;
 
 function get_all_subqueries(){
     $.ajax({
