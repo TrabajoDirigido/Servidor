@@ -178,8 +178,8 @@ class ParseQueryTest(TestCase):
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
-        res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
-        self.assertEquals(res,[-1])
+        res = [r.value for r in Result.objects.filter(query=Query.objects.get(id=1))]
+        self.assertEquals(res,['-1'])
 
     def test_max(self):
         parsed_query = {'method': 'max',
@@ -191,5 +191,5 @@ class ParseQueryTest(TestCase):
         save_parsed_query_to_database(parsed_query,self.my_connected_clients,self.lab)
 
         client_side_query = get_client_side_query(parsed_query,self.my_connected_clients)
-        res = [eval(r.value) for r in Result.objects.filter(query=Query.objects.get(id=1))]
-        self.assertEquals(res,[100])
+        res = [r.value for r in Result.objects.filter(query=Query.objects.get(id=1))]
+        self.assertEquals(res,['100'])

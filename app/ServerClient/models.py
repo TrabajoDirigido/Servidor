@@ -37,3 +37,4 @@ class Argument(models.Model):
     type = models.CharField(max_length=100)
     arg1 = models.BooleanField()
     query = models.ForeignKey(Query)
+    origin = models.CharField(max_length=200, default='localhost')

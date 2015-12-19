@@ -87,9 +87,9 @@ def _execute_vals_function(query,f,type):
     new_args =[]
     for a in args:
         try:
-            new_args.append(eval(a.value))
+            new_args.append([eval(a.value), a.origin])
         except Exception:
-            new_args.append(a.value)
+            new_args.append([a.value, a.origin])
 
 
     result = f(new_args) #Entrega una lista de resultados (aunque sea uno)
@@ -103,7 +103,7 @@ def _check_bool_arg(args):
     for a in args:
         if not type(a) is bool:
             logger.exception(Exception('Wrong type argument'))
-            return
+            raise Exception
 
 def _execute_logic(query):
     query_type = eval(query.query)['type']
@@ -112,6 +112,7 @@ def _execute_logic(query):
 
 def _execute_and(query):
     def _my_and(args):
+        args = [a for [a,_] in args]
         _check_bool_arg(args)
         return [reduce((lambda x,y : x and y), args, True)]
     return _execute_vals_function(query, _my_and, 'bool')
@@ -119,6 +120,7 @@ def _execute_and(query):
 
 def _execute_or(query):
     def _my_or(args):
+        args = [a for [a,_] in args]
         _check_bool_arg(args)
         return [reduce((lambda x,y : x or y), args, False)]
     return _execute_vals_function(query, _my_or, 'bool')
@@ -134,6 +136,7 @@ def _execute_filter(query):
         #         'bool': bool(value)}[type]
         method = query_text['type']
         def _inside_filter(args):
+            args = [a for [a,_] in args]
             return list(filter({
                             'equal': lambda compare_value:  value == compare_value,
                             'not_equal': lambda compare_value: value != compare_value
@@ -151,6 +154,7 @@ def _execute_count(query):
 def _execute_sort(query):
     def _my_sort(reverse_value):
         def _inner_sort(args):
+            args = [a for [a,_] in args]
             args.sort(reverse=reverse_value)
             return args
         return _inner_sort
@@ -164,11 +168,35 @@ def _execute_sort(query):
 
 
 def _execute_min(query):
+    def _my_min():
+        def inner_function(args):
+            new_args = [a for [a,_] in args]
+            min_val = min(new_args)
+            min_name = ""
+            for a in args:
+                if a[0]==min_val and a[1]!='localhost':
+                    min_name += a[1]+', '
+            if min_name!="":
+                min_name=min_name.strip(', ')+'=> '
+            return [min_name+str(min_val)]
+        return inner_function
     arg1 = Argument.objects.filter(query=query)[0]
 
-    return _execute_vals_function(query, lambda x: [min(x)], arg1.type)
+    return _execute_vals_function(query, _my_min(), arg1.type)
 
 
 def _execute_max(query):
+    def _my_max():
+        def inner_function(args):
+            new_args = [a for [a,_] in args]
+            max_val = max(new_args)
+            max_name = ""
+            for a in args:
+                if a[0]==max_val and a[1]!='localhost':
+                    max_name += a[1]+', '
+            if max_name!="":
+                max_name=max_name.strip(', ')+'=> '
+            return [max_name+str(max_val)]
+        return inner_function
     arg1 = Argument.objects.filter(query=query)[0]
-    return _execute_vals_function(query, lambda x: [max(x)], arg1.type)
+    return _execute_vals_function(query, _my_max(), arg1.type)

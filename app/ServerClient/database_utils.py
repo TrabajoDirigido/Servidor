@@ -193,7 +193,7 @@ def _update_results(query):
         res = Result.objects.filter(query=old_query)
 
         for r in res:
-            new_arg = Argument(value=r.value, type= r.type, arg1=old_query.arg1, query=query)
+            new_arg = Argument(value=r.value, type= r.type, arg1=old_query.arg1, query=query, origin=r.origin)
             new_arg.save()
         query.remaining_args -= 1
         query.save()
