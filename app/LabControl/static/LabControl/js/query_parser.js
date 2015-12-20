@@ -18,6 +18,11 @@ function parseQuery(code){
         return;
     }
 
+    if(clients.length==0){
+        alert("There is no one to send this query to!");
+        return;
+    }
+
     AddParameter(form, "name", name);
     AddParameter(form, "lab", lab);
     AddParameter(form, "query", code);

@@ -50,7 +50,7 @@ def _data_chart_client(query, client_dict):
 def _set_client(client, client_dict,new_query):
     if client=='all':
         for ip in ClientInfo.objects.all():
-            client_dict[ip].append(new_query)
+            client_dict[ip.address].append(new_query)
     elif type(client) is list:
         for c in client:
             c = ClientInfo.objects.get(names=c)

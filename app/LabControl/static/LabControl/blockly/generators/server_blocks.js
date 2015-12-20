@@ -29,7 +29,7 @@ Blockly.JavaScript['serverfilter'] = function(block) {
   var query = addForProperty(block, statements_query, dropdown_students);
 
   var code = '{"method":"filter",'+
-        '"var":"'+createJsonVar(Blockly.JavaScript.valueToCode(block, 'VAR', Blockly.JavaScript.ORDER_ATOMIC))+'",'+
+        '"var":'+createJsonVar(Blockly.JavaScript.valueToCode(block, 'VAR', Blockly.JavaScript.ORDER_ATOMIC))+','+
         '"type":"'+block.getFieldValue('CONDITION')+'",'+
         '"vals":'+query+'}';
 

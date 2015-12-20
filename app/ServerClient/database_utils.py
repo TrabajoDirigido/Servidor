@@ -1,4 +1,4 @@
-from .models import Query, Lab, Result,Argument
+from .models import Query, Lab, Result,Argument, ClientInfo
 import logging
 from .query_execution_utils import execute_query
 __author__ = 'Camila Alvarez'
@@ -165,8 +165,11 @@ def save_result(id, result,origin):
     try:
         query = Query.objects.get(id=id)
         for res in result:
-            value = res['var']
             type = res['type']
+            if type == 'null':
+                value = None
+            else:
+                value = res['var']
             result = Result(value=value, type=type, origin=origin, query=query)
             result.save()
         query.remaining_results -= 1
@@ -184,7 +187,7 @@ def _update_results(query):
         if query_text['method'] != 'get':
             execute_query(query)
 
-        if query.parent==-1:
+        if query.parent == -1:
             break
 
         old_query = query
