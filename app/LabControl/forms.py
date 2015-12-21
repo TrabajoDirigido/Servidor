@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.safestring import mark_safe
 from ServerClient.models import Lab
+from .utils import new_choices
 
 
 class LoginForm(forms.Form):
@@ -14,19 +15,9 @@ class LoginForm(forms.Form):
 
 
 class QueryForm(forms.Form):
-    try:
-        choices = []
-        for e in Lab.objects.all():
-            if e.seccion not in choices:
-                choices.append(e.seccion)
-        choices.sort()
-        new_choices = []
-        for e in choices:
-            new_choices.append((e,e))
-    except Exception as e:
-        new_choices = []
+
     select_seccion = forms.ChoiceField(label="Pick a section",
-                                       choices=new_choices,
+                                       choices=new_choices(),
                                        widget=forms.Select(attrs={
                                             'id': 'section_select'
                                         }
@@ -43,19 +34,8 @@ class QueryForm(forms.Form):
 
 
 class ResultsForm(forms.Form):
-    try:
-        choices = []
-        for e in Lab.objects.all():
-            if e.seccion not in choices:
-                choices.append(e.seccion)
-        choices.sort()
-        new_choices = []
-        for e in choices:
-            new_choices.append((e,e))
-    except Exception as e:
-        new_choices = []
     select_seccion = forms.ChoiceField(label="Pick a section",
-                                       choices= new_choices,
+                                       choices= new_choices(),
                                        widget=forms.Select(attrs={
                                             'id': 'section_select'
                                         }

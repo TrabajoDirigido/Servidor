@@ -97,14 +97,13 @@
         </div>
         <script type="text/javascript">
             var labs = {{first_seccion|safe}};
+            var sections = {{ seccion_select|safe }};
             var table = {{ table|safe }};
             var page_number = {{ page_number }};
             var seccion ={{ seccion }};
             var lab = "{{ lab }}";
         </script>
-        <div>
-            {{ seccion_select }}
-        </div>
+        <div id="section_div"></div>
         <div id="lab_div"></div>
         <h1 class="page-head-line"></h1>
         <div class="table-responsive">

@@ -49,7 +49,9 @@ def _save_recursive(query,parent,clients, arg1,lab):
             'max': _save_vals_operation,
             'for': _save_vals_operation,
             'alarm': _save_set_alarm,
-            'filter': _save_vals_operation
+            'filter': _save_vals_operation,
+            'existChart': _save_get,
+            'dataChart': _save_get
         }
         return options[method](query,parent,clients, arg1,lab)
     except KeyError as e:
@@ -184,7 +186,7 @@ def _update_results(query):
     query_text = eval(query.query)
     while (query.remaining_args == 0 or query_text['method'] == 'get'):
         #procesar query
-        if query_text['method'] != 'get':
+        if query_text['method'] != 'get' and 'for' not in query_text:
             execute_query(query)
 
         if query.parent == -1:

@@ -58,8 +58,8 @@ def unregister(request):
     token = request.GET['token']
     s = connected_clients[token]
     s.send("\r\n".encode())
-    
-    origin_name = ClientInfo.objects.get(adress=token).names
+
+    origin_name = ClientInfo.objects.get(address=token).names
 
     for r in Result.objects.filter(origin=token):
         r.origin = origin_name
@@ -114,11 +114,7 @@ def receive_client_response(request):
 
     id_query = response['id']
     result = response['result']
-
     save_result(id_query, result,origin)
-
-    for e in Query.objects.get(id=id_query).results.all():
-        print('result:'+str(e.value))
 
     return HttpResponse(status=200)
 

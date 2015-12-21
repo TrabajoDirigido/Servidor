@@ -90,6 +90,7 @@
 <div class="content-wrapper">
     <script type="text/javascript">
         var labs = {{labs|safe}};
+        var sections = {{ section|safe }};
     </script>
     <div class="container">
         <div class="row">
@@ -161,9 +162,7 @@
             </div>
         <div class="row" id="seccion-lab">
                 <br>
-                <label for="section_select">Pick a Section:</label>
-                {{ query_form.select_seccion }}
-                <br>
+                <div id="section_div"></div>
                 <div id="lab_div"></div>
                 <br>
                 {{ query_form.query_name }}

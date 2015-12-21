@@ -1,8 +1,9 @@
 Blockly.JavaScript['var'] = function(block) {
   var code = new Array(block.itemCount_);
   for (var n = 0; n < block.itemCount_; n++) {
-    code[n] = Blockly.JavaScript.valueToCode(block, 'ADD' + n,
+    var temp = Blockly.JavaScript.valueToCode(block, 'ADD' + n,
         Blockly.JavaScript.ORDER_COMMA) || 'null';
+    code[n] = temp.split("'").join("\"");
   }
   var res = '[' + code.join(',') + ']';
   return res;

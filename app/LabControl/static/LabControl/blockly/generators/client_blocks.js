@@ -24,7 +24,10 @@ function createJsonVar(value){
   if(!value){
     throw "Null value";
   }
-
+  if(value == "NoNeNULLNoNe"){
+    return '{"type":"null"}';
+  }
+  value = value.split("'").join("\"");
   var res = '{"var":'+value+',';
   if (typeof eval(value) === 'string' || eval(value) instanceof String)
     res += '"type":"string"}';
@@ -91,14 +94,13 @@ Blockly.JavaScript['filterobject'] = function(block) {
 
 Blockly.JavaScript['count'] = function(block) {
   var statements_filter = Blockly.JavaScript.statementToCode(block, 'FILTER');
-  // TODO: Assemble JavaScript into code variable.
   var code = '{"method":"count",'+
         '"vals":'+statements_filter+'}';
   return code;
 };
 
 Blockly.JavaScript['null'] = function(block) {
-  return null;
+  return ["NoNeNULLNoNe",Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 Blockly.JavaScript['existchart'] = function(block) {

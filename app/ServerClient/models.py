@@ -27,13 +27,13 @@ class Query(models.Model):
     arg1 = models.BooleanField()
 
 class Result(models.Model):
-    value = models.TextField()
+    value = models.TextField(null=True)
     type = models.CharField(max_length=100)
     origin = models.CharField(max_length=200,default='localhost')
     query = models.ForeignKey(Query)
 
 class Argument(models.Model):
-    value = models.TextField()
+    value = models.TextField(null=True)
     type = models.CharField(max_length=100)
     arg1 = models.BooleanField()
     query = models.ForeignKey(Query)

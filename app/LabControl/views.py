@@ -46,8 +46,14 @@ def query(request):
         labs = {e.id:e.lab for e in labs }
     except Exception as e:
         labs = {}
+
+    choices={}
+    for (e,e) in  new_choices():
+        choices[e]=e
+
     return render_to_response('LabControl/query.html', {'query_form': query_form,
-                                                        'labs':labs})
+                                                        'labs':labs,
+                                                        'section': choices})
 
 
 @login_required()
@@ -87,6 +93,7 @@ def add_lab(request):
             new_lab = Lab(lab=lab,seccion=seccion,date=date)
             new_lab.save()
             success=True
+
     return render(request,'LabControl/add_lab.html',{'used_name': used_name,
                                                      'invalid_date': invalid_date,
                                                      'invalid_section':invalid_section,
@@ -117,10 +124,14 @@ def results(request):
     except Lab.DoesNotExist:
         response= {}
         page_number = 1
+
+    choices={}
+    for (e,e) in  new_choices():
+        choices[e]=e
     return render(request,'LabControl/results.html',{'page_number': page_number,
                                                      'lab': name,
                                                      'seccion': seccion,
-                                                     'seccion_select': seccion_select,
+                                                     'seccion_select': choices,
                                                      'table': json.dumps(response),
                                                      'first_seccion':json.dumps(labs)})
 

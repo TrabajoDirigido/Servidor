@@ -7,6 +7,12 @@ $('#document').ready(function() {
     div.append($('<label>Laboratory:</label>'));
     generate_select_lab();
     add_options_to_select($('#select_lab'),labs);
+
+    $('#section_div').append($('<label for="section_div">Pick a Section:</label>'));
+    $('#section_div').append($('<select id="section_select" name="section_select" onchange="ChangeLab();">'));
+
+    add_options_to_select($('#section_select'),sections);
+
     $('#section_select option[value='+seccion+']').attr("selected", "selected");
     $('#select_lab option[value='+lab+']').attr("selected", "selected");
     createPagination(page_number);
@@ -39,6 +45,25 @@ function createPagination(page_number){
     });
 }
 
+function ChangeLab(){
+    div = $('#lab_div');
+    div.find('select').remove();
+    generate_select_lab();
+    $.ajax({
+        method: "GET",
+        url: "/lab_control/get_labs_per_seccion/",
+        data: { seccion: $('#section_select').val() }
+    })
+    .success(function( data ) {
+        new_select = $('#select_lab');
+        add_options_to_select(new_select,data['labs']);
+        $('#tbody').empty();
+        fill_table(data['first_lab']);
+        $("#nav_pane_paginator").jui_pagination('destroy');
+        createPagination(data['page_number']);
+    });
+
+}
 
 $('#section_select').change(function(){
     div = $('#lab_div');
